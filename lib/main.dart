@@ -1,5 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
+import 'package:cfm_feedback/ImageUtils.dart';
+import 'package:cfm_feedback/MorePage.dart';
+import 'package:cfm_feedback/PermissionUtils.dart';
 import 'package:cfm_feedback/StatisticsPage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +18,9 @@ import 'package:sqflite/sqflite.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
+import 'package:saf/saf.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+import 'package:merge_images/merge_images.dart';
 
 // import 'MyWebView.dart';
 
@@ -115,6 +122,7 @@ class Mission {
     required this.deadline,
     required this.url,
   });
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -255,6 +263,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _loadData();
     FlutterNativeSplash.remove();
+    PermissionUtils.requestStoragePermission();
+    createCFM();
   }
 
   @override
@@ -271,6 +281,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Scaffold(
               appBar: AppBar(
                 title: Text(widget.title),
+                centerTitle: true,
                 actions: [
                   IconButton(
                     onPressed: () {
@@ -279,7 +290,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         applicationName: "M组小工具",
                         applicationVersion: "2.0.1",
                         applicationLegalese: "@Rlin",
-                        applicationIcon: Image.asset("assets/cf_icon.png",height: 80,width: 80,),
+                        applicationIcon: Image.asset(
+                          "assets/cf_icon.png",
+                          height: 80,
+                          width: 80,
+                        ),
                       );
                     },
                     icon: Icon(Icons.info_outline),
@@ -292,7 +307,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Card(
-                        elevation: 5,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                          borderRadius: const BorderRadius.all(Radius.circular(12)),
+                        ),
                         child: Container(
                           padding: EdgeInsets.all(16.0),
                           child: Text(
@@ -642,16 +663,16 @@ class _MyHomePageState extends State<MyHomePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Radio(
-                          value: "可忽略",
-                          groupValue: _degreeValue,
-                          onChanged: (value) {
-                            setState(() {
-                              _degreeValue = value.toString();
-                            });
-                          },
-                        ),
-                        Text("可忽略"),
+                        // Radio(
+                        //   value: "可忽略",
+                        //   groupValue: _degreeValue,
+                        //   onChanged: (value) {
+                        //     setState(() {
+                        //       _degreeValue = value.toString();
+                        //     });
+                        //   },
+                        // ),
+                        // Text("可忽略"),
                         Radio(
                           value: "一般",
                           groupValue: _degreeValue,
@@ -790,7 +811,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                         textInputAction: TextInputAction.next,
                         decoration: InputDecoration(
-                          hintText: "填写BUG在哪张地图的具体哪个位置",
+                          hintText: "BUG在哪张地图哪个位置,非地图bug可填无",
                           labelText: "BUG出现位置",
                           errorText: _positionError,
                           border: OutlineInputBorder(),
@@ -813,6 +834,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             onPressed: () {
                               _videoValueController.text =
                                   "${_nameValueController.text} ${_time.hour.toString().padLeft(2, '0')}${_time.minute.toString().padLeft(2, '0')}.mp4";
+                              _getVideo(_videoValueController.text, context);
                             },
                           ),
                         ),
@@ -834,8 +856,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           suffixIcon: IconButton(
                             icon: Icon(Icons.input),
                             onPressed: () {
-                              _logValueController.text =
-                                  "${_nameValueController.text} ${_qqValueController.text} BUG问题+原文件名.log";
+                              _getLog(!_serverValue.contains("正式服"), context);
                             },
                           ),
                         ),
@@ -843,13 +864,23 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     Divider(),
                     Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: OutlinedButton(
+                        onPressed: () {
+                          _mergeImage("${_nameValueController.text} ${_time.hour.toString().padLeft(2, '0')}${_time.minute.toString().padLeft(2, '0')}",context);
+                        },
+                        child: Text("图片拼接"),
+                      ),
+                    ),
+                    Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Card(
-                        elevation: 5,
+                        color: Theme.of(context).colorScheme.surfaceVariant,
+                        elevation: 0,
                         child: Container(
                           padding: EdgeInsets.all(16.0),
                           child: Text(
-                            "检查信息后按右下角的按钮进行复制\n\tBy M组寒心",
+                            "检查信息后按右下角的按钮进行复制\n视频与图片位于/Sdcard/DCIM/CFM\nLog文件位于/Sdcard/CFM/log\n\tBy M组寒心",
                             style: TextStyle(
                               color: Colors.orange,
                               fontSize: 20,
@@ -926,7 +957,7 @@ ${_logValueController.text}""";
                   child: Row(
                     children: [
                       Text(version + "任务统计"),
-                      Icon(Icons.keyboard_arrow_down),
+                      Expanded(child: Icon(Icons.keyboard_arrow_down)),
                     ],
                   ),
                   onTap: () {
@@ -1026,7 +1057,7 @@ ${_logValueController.text}""";
                                         Text(
                                             "1. 版本管理\n\t\t单击左上角标题切换任务版本，长按可以添加版本\n"),
                                         Text(
-                                            "2. 任务管理\n\t\t单击右下角按钮来添加任务或订阅，点击任务查看详情，长按标记完成，左滑删除，订阅后出现订阅更新按钮可以更新当前订阅\n"),
+                                            "2. 任务管理\n\t\t单击右下角按钮来添加任务或订阅，点击任务查看详情，点击左侧圆点标记完成，左滑删除，订阅后出现订阅更新按钮可以更新当前订阅\n"),
                                         Text("3. 统计信息\n\t\t单击右上角统计按钮来查看统计信息\n"),
                                       ],
                                     ),
@@ -1057,173 +1088,184 @@ ${_logValueController.text}""";
                   missions = await getMissions(version);
                   setState(() {});
                 },
-                child: ListView.separated(
-                  itemBuilder: (BuildContext context, int index) {
-                    return Dismissible(
-                      key: Key(index.toString()),
-                      background: Container(
-                        padding: EdgeInsets.only(right: 20.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.delete,
-                                  size: 32,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        color: Colors.orange[300],
-                      ),
-                      direction: DismissDirection.endToStart,
-                      dismissThresholds: {DismissDirection.endToStart: 0.2},
-                      confirmDismiss: (d) async {
-                        return await showDialog<bool>(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text("删除任务"),
-                                content: Text("是否要删除该任务？"),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(false),
-                                      child: Text("取消")),
-                                  TextButton(
-                                      onPressed: () async {
-                                        setState(() {
-                                          deleteMission(missions[index].id);
-                                          missions.removeAt(index);
-                                        });
-                                        Navigator.of(context).pop(true);
-                                      },
-                                      child: Text("确认")),
-                                ],
-                              );
-                            });
-                        //return false;
-                      },
-                      onDismissed: (d) {
-                        // setState(() {
-                        //   missions[index].isFinished = !missions[index].isFinished;
-                        // });
-                        // ScaffoldMessenger.of(context)
-                        //     .showSnackBar(SnackBar(content: Text('${missions[index].name} dismissed')));
-                      },
-                      child: ListTile(
-                        leading: missions[index].isFinished
-                            ? Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                              )
-                            : Icon(Icons.radio_button_unchecked),
-                        title: Text(missions[index].name),
-                        subtitle: Text(missions[index].deadline +
-                            "\n" +
-                            missions[index].content),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(missions[index].pay.toString()),
-                          ],
-                        ),
-                        onTap: () {
-                          showModalBottomSheet(
-                            isScrollControlled: true,
-                            context: context,
-                            builder: (context) {
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
+                child: Scrollbar(
+                  child: ListView.separated(
+                    itemBuilder: (BuildContext context, int index) {
+                      return Dismissible(
+                        key: Key(index.toString()),
+                        background: Container(
+                          padding: EdgeInsets.only(right: 20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  ListTile(
-                                    title: Text("任务名称"),
-                                    subtitle: Text(missions[index].name),
-                                  ),
-                                  ListTile(
-                                    title: Text("任务内容"),
-                                    subtitle: Text(missions[index].content),
-                                  ),
-                                  ListTile(
-                                    title: Text("任务要求"),
-                                    subtitle: Text(missions[index].claim),
-                                  ),
-                                  ListTile(
-                                    title: Text("任务奖励"),
-                                    subtitle:
-                                        Text(missions[index].pay.toString()),
-                                  ),
-                                  ListTile(
-                                    title: Text("截止日期"),
-                                    subtitle: Text(missions[index].deadline),
-                                  ),
-                                  ListTile(
-                                    title: Text("问卷链接"),
-                                    subtitle: Text(
-                                      missions[index].url,
-                                      style: TextStyle(color: Colors.blue),
-                                    ),
-                                    onTap: () {
-                                      launch(missions[index].url);
-                                      // Navigator.push(context,
-                                      //     MaterialPageRoute(builder: (context) {
-                                      //   return MyWebView(
-                                      //     selectedUrl: missions[index].url,
-                                      //     title: missions[index].name,
-                                      //   );
-                                      // }));
-                                    },
+                                  Icon(
+                                    Icons.delete,
+                                    size: 32,
                                   ),
                                 ],
-                              );
-                            },
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(20),
                               ),
-                            ),
-                          );
+                            ],
+                          ),
+                          color: Colors.orange[300],
+                        ),
+                        direction: DismissDirection.endToStart,
+                        dismissThresholds: {DismissDirection.endToStart: 0.2},
+                        confirmDismiss: (d) async {
+                          return await showDialog<bool>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text("删除任务"),
+                                  content: Text("是否要删除该任务？"),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(false),
+                                        child: Text("取消")),
+                                    TextButton(
+                                        onPressed: () async {
+                                          setState(() {
+                                            deleteMission(missions[index].id);
+                                            missions.removeAt(index);
+                                          });
+                                          Navigator.of(context).pop(true);
+                                        },
+                                        child: Text("确认")),
+                                  ],
+                                );
+                              });
+                          //return false;
                         },
-                        onLongPress: () async {
-                          setState(() {
-                            missions[index].isFinished =
-                                !missions[index].isFinished;
-                          });
-                          await updateMission(missions[index]);
-                          // showDialog(
-                          //     context: context,
-                          //     builder: (BuildContext context) {
-                          //       return AlertDialog(
-                          //         title: Text("删除任务"),
-                          //         content: Text("是否要删除该任务？"),
-                          //         actions: [
-                          //           TextButton(
-                          //               onPressed: () => Navigator.pop(context),
-                          //               child: Text("取消")),
-                          //           TextButton(
-                          //               onPressed: () async {
-                          //                 setState(() {
-                          //                   deleteMission(missions[index].id);
-                          //                   missions.removeAt(index);
-                          //                 });
-                          //                 Navigator.pop(context);
-                          //               },
-                          //               child: Text("确认")),
-                          //         ],
-                          //       );
-                          //     });
+                        onDismissed: (d) {
+                          // setState(() {
+                          //   missions[index].isFinished = !missions[index].isFinished;
+                          // });
+                          // ScaffoldMessenger.of(context)
+                          //     .showSnackBar(SnackBar(content: Text('${missions[index].name} dismissed')));
                         },
-                      ),
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) =>
-                      Divider(
-                    height: 1,
+                        child: ListTile(
+                          leading: IconButton(
+                            icon: missions[index].isFinished
+                                ? Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : Icon(Icons.radio_button_unchecked),
+                            onPressed: () async {
+                              setState(() {
+                                missions[index].isFinished =
+                                    !missions[index].isFinished;
+                              });
+                              await updateMission(missions[index]);
+                            },
+                          ),
+                          title: Text(missions[index].name),
+                          subtitle: Text(missions[index].deadline +
+                              "\n" +
+                              missions[index].content),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(missions[index].pay.toString()),
+                            ],
+                          ),
+                          onTap: () {
+                            showModalBottomSheet(
+                              isScrollControlled: true,
+                              context: context,
+                              builder: (context) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ListTile(
+                                      title: Text("任务名称"),
+                                      subtitle: Text(missions[index].name),
+                                    ),
+                                    ListTile(
+                                      title: Text("任务内容"),
+                                      subtitle: Text(missions[index].content),
+                                    ),
+                                    ListTile(
+                                      title: Text("任务要求"),
+                                      subtitle: Text(missions[index].claim),
+                                    ),
+                                    ListTile(
+                                      title: Text("任务奖励"),
+                                      subtitle:
+                                          Text(missions[index].pay.toString()),
+                                    ),
+                                    ListTile(
+                                      title: Text("截止日期"),
+                                      subtitle: Text(missions[index].deadline),
+                                    ),
+                                    ListTile(
+                                      title: Text("问卷链接"),
+                                      subtitle: Text(
+                                        missions[index].url,
+                                        style: TextStyle(color: Colors.blue),
+                                      ),
+                                      onTap: () {
+                                        launch(missions[index].url);
+                                        // Navigator.push(context,
+                                        //     MaterialPageRoute(builder: (context) {
+                                        //   return MyWebView(
+                                        //     selectedUrl: missions[index].url,
+                                        //     title: missions[index].name,
+                                        //   );
+                                        // }));
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20),
+                                ),
+                              ),
+                            );
+                          },
+                          onLongPress: () async {
+                            setState(() {
+                              missions[index].isFinished =
+                                  !missions[index].isFinished;
+                            });
+                            await updateMission(missions[index]);
+                            // showDialog(
+                            //     context: context,
+                            //     builder: (BuildContext context) {
+                            //       return AlertDialog(
+                            //         title: Text("删除任务"),
+                            //         content: Text("是否要删除该任务？"),
+                            //         actions: [
+                            //           TextButton(
+                            //               onPressed: () => Navigator.pop(context),
+                            //               child: Text("取消")),
+                            //           TextButton(
+                            //               onPressed: () async {
+                            //                 setState(() {
+                            //                   deleteMission(missions[index].id);
+                            //                   missions.removeAt(index);
+                            //                 });
+                            //                 Navigator.pop(context);
+                            //               },
+                            //               child: Text("确认")),
+                            //         ],
+                            //       );
+                            //     });
+                          },
+                        ),
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) =>
+                        Divider(
+                      height: 1,
+                    ),
+                    itemCount: missions.length,
                   ),
-                  itemCount: missions.length,
                 ),
               ),
               floatingActionButton: FloatingActionButton(
@@ -1446,7 +1488,8 @@ ${_logValueController.text}""";
                 },
                 heroTag: "other",
               ),
-            )
+            ),
+            MorePage(_nameValueController.text),
           ],
         ),
       ),
@@ -1462,10 +1505,91 @@ ${_logValueController.text}""";
             icon: Icon(Icons.table_rows),
             label: "任务统计",
           ),
+          NavigationDestination(
+            icon: Icon(Icons.more),
+            label: "更多功能",
+          ),
         ],
         height: 70,
       ),
     );
+  }
+
+  _getVideo(String videoName, BuildContext context) async {
+    //createCFM();
+    final List<AssetEntity>? result = await AssetPicker.pickAssets(context,
+        pickerConfig: const AssetPickerConfig(
+            maxAssets: 1, requestType: RequestType.video));
+    (await result?.first.file)?.copy("/storage/emulated/0/DCIM/CFM/$videoName");
+  }
+
+  _getLog(bool isAlpha, BuildContext context) async {
+    //createCFM();
+    String logPath;
+    if (isAlpha) {
+      logPath = "Android/data/com.tencent.tmgp.cfalpha/cache/Cache/Log";
+    } else {
+      logPath = "Android/data/com.tencent.tmgp.cf/cache/Cache/Log";
+    }
+    Saf saf = Saf(logPath);
+
+    bool? isGranted = await saf.getDirectoryPermission(isDynamic: false);
+    if (isGranted != null && isGranted) {
+      var cachedFilesPath = await saf.cache();
+      if (cachedFilesPath != null) {
+        await showDialog(
+            context: context,
+            builder: (context) {
+              return SimpleDialog(
+                title: Text("选择一个log文件"),
+                children: [
+                  Container(
+                    height: 400,
+                    width: 300,
+                    child: ListView.separated(
+                        itemBuilder: (BuildContext context, int index) {
+                          String title = cachedFilesPath[index].substring(
+                              cachedFilesPath[index].lastIndexOf('/') + 1);
+                          return ListTile(
+                            title: Text(title),
+                            onTap: () {
+                              File file = File(cachedFilesPath[index]);
+                              String logName =
+                                  "${_nameValueController.text} ${_qqValueController.text} ${_descriptionController.text} $title";
+                              file.copy("/storage/emulated/0/CFM/log/$logName");
+                              _logValueController.text = logName;
+                              Navigator.pop(context);
+                            },
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int i) =>
+                            Divider(),
+                        itemCount: cachedFilesPath.length),
+                  )
+                ],
+              );
+            });
+      }
+    } else {
+      // failed to get the permission
+      Fluttertoast.showToast(msg: "权限获取失败");
+    }
+    saf.clearCache();
+  }
+
+  Future<void> createCFM() async {
+    Directory cfm = Directory("/storage/emulated/0/CFM");
+    if (!(await cfm.exists())) {
+      cfm.create();
+      Directory cfmLog = Directory("/storage/emulated/0/CFM/log");
+      Directory cfmPicture = Directory("/storage/emulated/0/CFM/picture");
+      cfmLog.create();
+      cfmPicture.create();
+    }
+    Directory cfmVideo = Directory("/storage/emulated/0/DCIM/CFM");
+    if (!(await cfmVideo.exists())) {
+      cfmVideo.create();
+    }
   }
 
   Future<int> _subscribe() async {
@@ -1607,6 +1731,16 @@ ${_logValueController.text}""";
     if (prefs.getString("subscribeURL") != null) {
       subscribeURL = prefs.getString("subscribeURL")!;
     }
+    if (isSubscribed) {
+      try {
+        print("进入自动订阅");
+        int count = await _subscribe();
+        Fluttertoast.showToast(msg: "更新了$count条任务");
+        missions = await getMissions(version);
+      } catch (e) {
+        Fluttertoast.showToast(msg: "订阅异常");
+      }
+    }
   }
 
   _saveData() async {
@@ -1696,6 +1830,20 @@ ${_logValueController.text}""";
       err = true;
     }
     return err;
+  }
+  //合并截图
+  void _mergeImage(String imageName, BuildContext context) async {
+    try {
+      final List<AssetEntity>? result = await AssetPicker.pickAssets(context,
+          pickerConfig: const AssetPickerConfig(
+              maxAssets: 9, requestType: RequestType.image));
+      if (result!=null) {
+        await ImageUtils.mergeImage(result, imageName);
+        Fluttertoast.showToast(msg: "已保存为$imageName.png");
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 }
 

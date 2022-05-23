@@ -37,9 +37,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
       body: Column(
         children: [
           Card(
-            margin: EdgeInsets.all(8.0),
+            margin: EdgeInsets.all(16.0),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(20.0)),
+              side: BorderSide(
+                color: Colors.grey,
+                width: 1,
+              ),
             ),
             child: SizedBox(
               width: double.infinity,
@@ -152,22 +156,121 @@ class _StatisticsPageState extends State<StatisticsPage> {
                     ],
                   ),
                   Divider(),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
+                  Row(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 0.0),
-                        child: Text(
-                          "完成度",
-                          style: TextStyle(fontSize: 16),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 0.0),
+                              child: Text(
+                                "专项测试",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              child: Text(
+                                "${_getMyMainCount()}/${_getMainCount()}",
+                                style: TextStyle(
+                                    fontSize: 28, fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                        child: Text(
-                          _getPercent(_getMyFinished(), widget.missions.length),
-                          style: TextStyle(
-                              fontSize: 28, fontWeight: FontWeight.w700),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 0.0),
+                              child: Text(
+                                "武器测试",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              child: Text(
+                                "${_getMyWeaponCount()}/${_getWeaponCount()}",
+                                style: TextStyle(
+                                    fontSize: 28, fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 0.0),
+                              child: Text(
+                                "其它测试",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              child: Text(
+                                "${_getMyFinished()-_getMyMainCount()-_getMyWeaponCount()}/${widget.missions.length-_getMainCount()-_getWeaponCount()}",
+                                style: TextStyle(
+                                    fontSize: 28, fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 0.0),
+                              child: Text(
+                                "专项完成度",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              child: Text(
+                                _getPercent(_getMyMainCount(), _getMainCount()),
+                                style: TextStyle(
+                                    fontSize: 28, fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 0.0),
+                              child: Text(
+                                "完成度",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              child: Text(
+                                _getPercent(_getMyFinished(), widget.missions.length),
+                                style: TextStyle(
+                                    fontSize: 28, fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -175,7 +278,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 ],
               ),
             ),
-            elevation: 5.0,
+            //elevation: 3.0,
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -192,7 +295,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 ],
               ),
               decoration: BoxDecoration(
-                color: (Theme.of(context).colorScheme.brightness != Brightness.dark) ? Colors.orange[100] : Colors.black26,
+                //color: (Theme.of(context).colorScheme.brightness != Brightness.dark) ? Colors.orange[100] : Colors.black26,
                 borderRadius:
                 BorderRadius.all(Radius.circular(16.0)),
               ),
@@ -202,6 +305,43 @@ class _StatisticsPageState extends State<StatisticsPage> {
         ],
       ),
     );
+  }
+
+  int _getMainCount() {
+    int sum = 0;
+    for (int i = 0; i < widget.missions.length; i++) {
+      if (widget.missions[i].content.startsWith("专项")) {
+        sum ++;
+      }
+    }
+    return sum;
+  }
+  int _getMyMainCount() {
+    int sum = 0;
+    for (int i = 0; i < widget.missions.length; i++) {
+      if (widget.missions[i].content.startsWith("专项") && widget.missions[i].isFinished) {
+        sum ++;
+      }
+    }
+    return sum;
+  }
+  int _getWeaponCount() {
+    int sum = 0;
+    for (int i = 0; i < widget.missions.length; i++) {
+      if (widget.missions[i].content.startsWith("武器")) {
+        sum ++;
+      }
+    }
+    return sum;
+  }
+  int _getMyWeaponCount() {
+    int sum = 0;
+    for (int i = 0; i < widget.missions.length; i++) {
+      if (widget.missions[i].content.startsWith("武器") && widget.missions[i].isFinished) {
+        sum ++;
+      }
+    }
+    return sum;
   }
 
   int _getAllPay() {
