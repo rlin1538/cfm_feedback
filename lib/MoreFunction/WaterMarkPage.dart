@@ -1,107 +1,12 @@
 import 'dart:async';
 import 'dart:ui' as ui;
-
-import 'package:cfm_feedback/ImageUtils.dart';
-import 'package:flutter/material.dart';
+import 'package:cfm_feedback/Utils/ImageUtils.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:saf/saf.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-
-class MorePage extends StatefulWidget {
-  String name;
-
-  MorePage(this.name);
-
-  @override
-  State<MorePage> createState() => _MorePageState();
-}
-
-class _MorePageState extends State<MorePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("更多功能"),
-        centerTitle: true,
-      ),
-      body: ListView(
-        children: [
-          // Card(
-          //   child: ListTile(
-          //     title: Text(widget.name),
-          //   ),
-          // ),
-          ListTile(
-            leading: Icon(Icons.text_fields),
-            title: Text("一键打水印"),
-            subtitle: Text("多选图片，一键标上水印"),
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return WaterMarkPage(widget.name);
-              }));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.swap_horizontal_circle_outlined),
-            title: Text("一键转移键位(待实现)"),
-            subtitle: Text("将正式服键位转移到体验服"),
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.notifications),
-            title: Text("未完成任务通知(待实现)"),
-            trailing: Switch(
-              onChanged: (bool value) {},
-              value: false,
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.cleaning_services_rounded),
-            title: Text("清除/Android/data权限"),
-            subtitle: Text("当log提取失效时点此"),
-            onTap: () {
-              Saf saf = Saf("Android/data/com.tencent.tmgp.cf/cache/Cache/Log");
-              saf.releasePersistedPermission();
-              Fluttertoast.showToast(msg: "释放成功，请重新授权");
-            },
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.attach_money),
-            title: Text("(待实现)"),
-          ),
-          ListTile(
-            leading: Icon(Icons.upload_file),
-            title: Text("上传测试"),
-            onTap: () {
-
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text("关于此应用"),
-            onTap: () {
-              showAboutDialog(
-                context: context,
-                applicationName: "M组小工具",
-                applicationVersion: "2.0.1",
-                applicationLegalese: "@Rlin",
-                applicationIcon: Image.asset(
-                  "assets/cf_icon.png",
-                  height: 80,
-                  width: 80,
-                ),
-              );
-            },
-          )
-        ],
-      ),
-    );
-  }
-}
 
 class WaterMarkPage extends StatefulWidget {
   String name;
@@ -118,6 +23,7 @@ class _WaterMarkPageState extends State<WaterMarkPage> {
   Color currentColor = Colors.black;
   Color pickerColor = Colors.black;
   final streamController = StreamController();
+  double _currentSliderValue = 10;
 
   @override
   void initState() {
@@ -166,6 +72,21 @@ class _WaterMarkPageState extends State<WaterMarkPage> {
                 },
               ),
             ),
+            Slider(
+              value: _currentSliderValue,
+              divisions: 5,
+              max: 30,
+              onChanged: (v) {
+                setState(() {
+                  _currentSliderValue = v;
+                });
+              },
+            ),
+            Row(
+              children: [
+
+              ],
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -192,7 +113,7 @@ class _WaterMarkPageState extends State<WaterMarkPage> {
                                     child: const Text('Got it'),
                                     onPressed: () {
                                       setState(
-                                          () => currentColor = pickerColor);
+                                              () => currentColor = pickerColor);
                                       Navigator.of(context).pop();
                                     },
                                   ),
@@ -234,8 +155,7 @@ class _WaterMarkPageState extends State<WaterMarkPage> {
                       case ConnectionState.active:
                         if (snapshot.hasError) {
                           return Text("Active：出错");
-                        }
-                        else {
+                        } else {
                           return Text("已完成${snapshot.data}张水印");
                         }
                       case ConnectionState.done:
@@ -258,28 +178,29 @@ class _WaterMarkPageState extends State<WaterMarkPage> {
                     children: [
                       Text(
                         _nameValueController.text,
-                        style: TextStyle(fontSize: 30, color: currentColor),
+                        style: TextStyle(fontSize: 20+_currentSliderValue, color: currentColor),
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-
           ],
         ),
       ),
     );
   }
 
-  void _markImage(BuildContext context, ui.Image water, StreamController streamController) async {
+  void _markImage(BuildContext context, ui.Image water,
+      StreamController streamController) async {
     try {
       final List<AssetEntity>? result = await AssetPicker.pickAssets(context,
           pickerConfig: const AssetPickerConfig(
               maxAssets: 9, requestType: RequestType.image));
       if (result != null) {
         Fluttertoast.showToast(msg: "开始打水印");
-        ImageUtils.markImage(result, water, streamController).then((value) => Fluttertoast.showToast(msg: "打印完毕"));
+        ImageUtils.markImage(result, water, streamController)
+            .then((value) => Fluttertoast.showToast(msg: "打印完毕"));
       }
     } catch (e) {
       print(e);
@@ -291,7 +212,7 @@ class _WaterMarkPageState extends State<WaterMarkPage> {
 
     if (null != buildContext) {
       RenderRepaintBoundary? boundary =
-          buildContext.findRenderObject() as RenderRepaintBoundary;
+      buildContext.findRenderObject() as RenderRepaintBoundary;
       ui.Image image = await boundary.toImage();
       return image;
     } else {

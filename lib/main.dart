@@ -1,14 +1,17 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'package:cfm_feedback/ImageUtils.dart';
-import 'package:cfm_feedback/MorePage.dart';
-import 'package:cfm_feedback/PermissionUtils.dart';
-import 'package:cfm_feedback/StatisticsPage.dart';
+import 'package:cfm_feedback/Utils/ImageUtils.dart';
+import 'package:cfm_feedback/Page/MorePage.dart';
+import 'package:cfm_feedback/Utils/PermissionUtils.dart';
+import 'package:cfm_feedback/Page/StatisticsPage.dart';
+import 'package:cfm_feedback/Utils/XmlUtils.dart';
+import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -20,7 +23,6 @@ import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'package:saf/saf.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-import 'package:merge_images/merge_images.dart';
 
 // import 'MyWebView.dart';
 
@@ -48,6 +50,7 @@ void main() async {
     version: 3,
   );
   Globals.database = database;
+
   runApp(MyApp());
 }
 
@@ -265,6 +268,12 @@ class _MyHomePageState extends State<MyHomePage> {
     FlutterNativeSplash.remove();
     PermissionUtils.requestStoragePermission();
     createCFM();
+
+    Client.init(
+      stsUrl: "http://23.234.201.149:8839/getsts",
+      ossEndpoint: "oss-cn-hangzhou.aliyuncs.com",
+      bucketName: "cfm-alpha-image",
+    );
   }
 
   @override
@@ -282,24 +291,24 @@ class _MyHomePageState extends State<MyHomePage> {
               appBar: AppBar(
                 title: Text(widget.title),
                 centerTitle: true,
-                actions: [
-                  IconButton(
-                    onPressed: () {
-                      showAboutDialog(
-                        context: context,
-                        applicationName: "M组小工具",
-                        applicationVersion: "2.0.1",
-                        applicationLegalese: "@Rlin",
-                        applicationIcon: Image.asset(
-                          "assets/cf_icon.png",
-                          height: 80,
-                          width: 80,
-                        ),
-                      );
-                    },
-                    icon: Icon(Icons.info_outline),
-                  )
-                ],
+                // actions: [
+                //   IconButton(
+                //     onPressed: () {
+                //       showAboutDialog(
+                //         context: context,
+                //         applicationName: "M组小工具",
+                //         applicationVersion: "2.0.4",
+                //         applicationLegalese: "@Rlin",
+                //         applicationIcon: Image.asset(
+                //           "assets/cf_icon.png",
+                //           height: 80,
+                //           width: 80,
+                //         ),
+                //       );
+                //     },
+                //     icon: Icon(Icons.info_outline),
+                //   )
+                // ],
               ),
               body: Center(
                 child: ListView(
@@ -312,7 +321,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           side: BorderSide(
                             color: Theme.of(context).colorScheme.outline,
                           ),
-                          borderRadius: const BorderRadius.all(Radius.circular(12)),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(12)),
                         ),
                         child: Container(
                           padding: EdgeInsets.all(16.0),
@@ -867,7 +877,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       padding: EdgeInsets.all(16.0),
                       child: OutlinedButton(
                         onPressed: () {
-                          _mergeImage("${_nameValueController.text} ${_time.hour.toString().padLeft(2, '0')}${_time.minute.toString().padLeft(2, '0')}",context);
+                          _mergeImage(
+                              "${_nameValueController.text} ${_time.hour.toString().padLeft(2, '0')}${_time.minute.toString().padLeft(2, '0')}",
+                              context);
                         },
                         child: Text("图片拼接"),
                       ),
@@ -880,7 +892,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Container(
                           padding: EdgeInsets.all(16.0),
                           child: Text(
-                            "检查信息后按右下角的按钮进行复制\n视频与图片位于/Sdcard/DCIM/CFM\nLog文件位于/Sdcard/CFM/log\n\tBy M组寒心",
+                            "检查信息后按右下角的按钮进行复制\n视频位于/Sdcard/DCIM/CFM\n图片位于/Sdcard/Picture\nLog文件位于/Sdcard/CFM/log\n\tBy M组寒心",
                             style: TextStyle(
                               color: Colors.orange,
                               fontSize: 20,
@@ -1208,7 +1220,9 @@ ${_logValueController.text}""";
                                         style: TextStyle(color: Colors.blue),
                                       ),
                                       onTap: () {
-                                        launch(missions[index].url);
+                                        Uri url =
+                                            Uri.parse(missions[index].url);
+                                        launchUrl(url);
                                         // Navigator.push(context,
                                         //     MaterialPageRoute(builder: (context) {
                                         //   return MyWebView(
@@ -1218,6 +1232,54 @@ ${_logValueController.text}""";
                                         // }));
                                       },
                                     ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: OutlinedButton(
+                                              onPressed: () async {
+                                                if (_nameValueController.text ==
+                                                    "M【监测】") {
+                                                  Fluttertoast.showToast(
+                                                      msg: "请在反馈文本页面填写群昵称！");
+                                                } else {
+                                                  await _getImage(
+                                                      index, context);
+                                                }
+                                              },
+                                              child: Text("查看图片"),
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: OutlinedButton(
+                                              onPressed: () async {
+                                                if (_nameValueController.text ==
+                                                    "M【监测】") {
+                                                  Fluttertoast.showToast(
+                                                      msg: "请在反馈文本页面填写群昵称！");
+                                                } else {
+                                                  await _uploadImage(
+                                                      context, index);
+                                                }
+                                              },
+                                              child: Text("上传截图"),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [Text("截图上传测试中，不保证稳定性")],
+                                      ),
+                                    )
                                   ],
                                 );
                               },
@@ -1392,10 +1454,17 @@ ${_logValueController.text}""";
                                           Response response;
                                           try {
                                             response = await Dio().get(
-                                                'https://gitee.com/rlin1538/cfm_feedback_subscribe/raw/main/subscribe');
-                                            //print(response);
+                                                'https://rlin1538.coding.net/api/user/rlin1538/project/cfm_subscribe/shared-depot/cfm_feedback_subscribe/git/blob/main/subscribe');
+                                            //print(response.toString());
+                                            Map<String, dynamic> jsonResp =
+                                                jsonDecode(response.toString());
+                                            // print(jsonResp["data"]["file"]
+                                            //         ["data"]
+                                            //     .toString());
                                             List<String> subscribe =
-                                                response.toString().split('\n');
+                                                jsonResp["data"]["file"]["data"]
+                                                    .toString()
+                                                    .split('\n');
                                             for (int i = 0;
                                                 i < subscribe.length;
                                                 i++) {
@@ -1515,6 +1584,52 @@ ${_logValueController.text}""";
     );
   }
 
+  Future<void> _uploadImage(BuildContext context, int index) async {
+    final List<AssetEntity>? result = await AssetPicker.pickAssets(context,
+        pickerConfig: const AssetPickerConfig(
+            maxAssets: 9, requestType: RequestType.image));
+    if (result != null) {
+      Fluttertoast.showToast(msg: "开始上传，请等待", toastLength: Toast.LENGTH_SHORT);
+      //final images = await ImageUtils.assetsToImages(result);
+
+      for (int i = 0; i < result.length; i++) {
+        final bytes = await ImageUtils.testCompressFile((await result[i]
+            .file)!); //await ImagesMergeHelper.imageToUint8List(images[i]);
+        await Client().putObject(
+            bytes!,
+            "$version/${missions[index].name}/${_nameValueController.text}/" +
+                result[i].title!);
+        Fluttertoast.showToast(
+            msg: "已上传完毕${i + 1}张", toastLength: Toast.LENGTH_SHORT);
+      }
+      Fluttertoast.showToast(msg: "上传完毕", toastLength: Toast.LENGTH_SHORT);
+    }
+  }
+
+  Future<void> _getImage(int index, BuildContext context) async {
+    final client = Client();
+    Fluttertoast.showToast(msg: "获取图片中，请等待", toastLength: Toast.LENGTH_SHORT);
+    final res = await client.listObjects(
+        "$version/${missions[index].name}/${_nameValueController.text}/");
+    List<String> images = XmlUtils.parseXmlToList(res.data);
+    if (images.isNotEmpty) {
+      List<ImageProvider> imageProviders = [];
+      for (String s in images) {
+        imageProviders.add(Image.network(
+          client.getObjectUrl(s),
+          headers: await client.getHeaders(s),
+        ).image);
+      }
+      MultiImageProvider multiImageProvider =
+          MultiImageProvider(imageProviders);
+      Fluttertoast.showToast(msg: "共${images.length}张图片");
+      showImageViewerPager(context, multiImageProvider,
+          useSafeArea: true, immersive: false);
+    } else {
+      Fluttertoast.showToast(msg: "没有图片");
+    }
+  }
+
   _getVideo(String videoName, BuildContext context) async {
     //createCFM();
     final List<AssetEntity>? result = await AssetPicker.pickAssets(context,
@@ -1586,6 +1701,10 @@ ${_logValueController.text}""";
       cfmLog.create();
       cfmPicture.create();
     }
+    Directory cfmJoy = Directory("/storage/emulated/0/CFM/joy");
+    if (!(await cfmJoy.exists())) {
+      cfmJoy.create();
+    }
     Directory cfmVideo = Directory("/storage/emulated/0/DCIM/CFM");
     if (!(await cfmVideo.exists())) {
       cfmVideo.create();
@@ -1599,8 +1718,10 @@ ${_logValueController.text}""";
     response = await Dio().get(
       subscribeURL,
     );
-    //print("原始数据："+response.toString());
-    List<dynamic> maps = json.decode(response.toString());
+    Map<String, dynamic> jsonResp =
+    jsonDecode(response.toString());
+    print("原始数据："+jsonResp["data"]["file"]["data"].toString().length.toString());
+    List<dynamic> maps = json.decode(jsonResp["data"]["file"]["data"].toString());
 
     List<Mission> lists = List.generate(maps.length, (i) {
       //print("正在处理：${maps[i]["id"]}");
@@ -1831,13 +1952,14 @@ ${_logValueController.text}""";
     }
     return err;
   }
+
   //合并截图
   void _mergeImage(String imageName, BuildContext context) async {
     try {
       final List<AssetEntity>? result = await AssetPicker.pickAssets(context,
           pickerConfig: const AssetPickerConfig(
               maxAssets: 9, requestType: RequestType.image));
-      if (result!=null) {
+      if (result != null) {
         await ImageUtils.mergeImage(result, imageName);
         Fluttertoast.showToast(msg: "已保存为$imageName.png");
       }
