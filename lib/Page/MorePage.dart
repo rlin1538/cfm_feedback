@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:saf/saf.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../MoreFunction/WaterMarkPage.dart';
 import 'JoyBackupPage.dart';
@@ -16,6 +17,15 @@ class MorePage extends StatefulWidget {
 }
 
 class _MorePageState extends State<MorePage> {
+  var _nameValueController = TextEditingController();
+  String? _nameError;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,22 +35,43 @@ class _MorePageState extends State<MorePage> {
       ),
       body: ListView(
         children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _nameValueController,
+              onChanged: (v) {
+                if (_nameError != checkEmpty(v)) {
+                  setState(() {
+                    _nameError = checkEmpty(v);
+                  });
+                }
+                _saveName();
+              },
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                hintText: "M【监测】寒心",
+                labelText: "群昵称",
+                border: OutlineInputBorder(),
+                errorText: _nameError,
+              ),
+            ),
+          ),
           // Card(
           //   child: ListTile(
           //     title: Text(widget.name),
           //   ),
           // ),
-          ListTile(
-            leading: Icon(Icons.text_fields),
-            title: Text("一键打水印"),
-            subtitle: Text("多选图片，一键标上水印"),
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return WaterMarkPage(widget.name);
-              }));
-            },
-          ),
+          // ListTile(
+          //   leading: Icon(Icons.text_fields),
+          //   title: Text("一键打水印"),
+          //   subtitle: Text("多选图片，一键标上水印"),
+          //   onTap: () {
+          //     Navigator.push(context,
+          //         MaterialPageRoute(builder: (BuildContext context) {
+          //       return WaterMarkPage(widget.name);
+          //     }));
+          //   },
+          // ),
           ListTile(
             leading: Icon(Icons.swap_horizontal_circle_outlined),
             title: Text("键位备份"),
@@ -77,7 +108,7 @@ class _MorePageState extends State<MorePage> {
           ListTile(
             leading: Icon(Icons.cleaning_services_rounded),
             title: Text("清除/Android/data权限"),
-            subtitle: Text("当log提取失效时点此"),
+            subtitle: Text("当log提取、键位备份失效时点此"),
             onTap: () async {
               // Saf saf = Saf("Android/data/com.tencent.tmgp.cf/cache/Cache/Log");
               // saf.releasePersistedPermission();
@@ -111,7 +142,7 @@ class _MorePageState extends State<MorePage> {
               showAboutDialog(
                 context: context,
                 applicationName: "M组小工具",
-                applicationVersion: "2.0.10",
+                applicationVersion: "2.1.0",
                 applicationLegalese: "@Rlin",
                 applicationIcon: Image.asset(
                   "assets/cf_icon.png",
@@ -124,5 +155,29 @@ class _MorePageState extends State<MorePage> {
         ],
       ),
     );
+  }
+
+  String? checkEmpty(String? text) {
+    String? err;
+    if (text == "")
+      err = "未填写";
+    else
+      err = null;
+
+    return err;
+  }
+
+  _saveName() async {
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setString("Name", _nameValueController.text);
+  }
+
+  void _loadData() async {
+    var prefs = await SharedPreferences.getInstance();
+    if (prefs.getString("Name") != null) {
+      _nameValueController.text = prefs.getString("Name").toString();
+    } else {
+      _nameValueController.text = "M【监测】";
+    }
   }
 }

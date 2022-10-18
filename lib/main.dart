@@ -5,14 +5,13 @@ import 'package:cfm_feedback/Utils/ImageUtils.dart';
 import 'package:cfm_feedback/Page/MorePage.dart';
 import 'package:cfm_feedback/Utils/PermissionUtils.dart';
 import 'package:cfm_feedback/Page/StatisticsPage.dart';
-import 'package:cfm_feedback/Utils/XmlUtils.dart';
-import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_oss_aliyun/flutter_oss_aliyun.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:jpush_flutter/jpush_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -22,7 +21,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'package:saf/saf.dart';
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 // import 'MyWebView.dart';
 
@@ -50,6 +48,7 @@ void main() async {
     version: 3,
   );
   Globals.database = database;
+  //initJPushState();
 
   runApp(MyApp());
 }
@@ -211,7 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
   var _videoValueController = TextEditingController();
   var _logValueController = TextEditingController();
 
-  int currentIndex = 0;
+  int currentIndex = 1;
   List<Mission> missions = [];
   String version = "";
   List<String> versions = [];
@@ -839,14 +838,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           hintText: "填写录制BUG的视频文件名，没有不填",
                           labelText: "视频id",
                           border: OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.input),
-                            onPressed: () {
-                              _videoValueController.text =
-                                  "${_nameValueController.text} ${_time.hour.toString().padLeft(2, '0')}${_time.minute.toString().padLeft(2, '0')}.mp4";
-                              _getVideo(_videoValueController.text, context);
-                            },
-                          ),
+                          // suffixIcon: IconButton(
+                          //   icon: Icon(Icons.input),
+                          //   onPressed: () {
+                          //     _videoValueController.text =
+                          //         "${_nameValueController.text} ${_time.hour.toString().padLeft(2, '0')}${_time.minute.toString().padLeft(2, '0')}.mp4";
+                          //     _getVideo(_videoValueController.text, context);
+                          //   },
+                          // ),
                         ),
                       ),
                     ),
@@ -872,18 +871,18 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                     ),
-                    Divider(),
-                    Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: OutlinedButton(
-                        onPressed: () {
-                          _mergeImage(
-                              "${_nameValueController.text} ${_time.hour.toString().padLeft(2, '0')}${_time.minute.toString().padLeft(2, '0')}",
-                              context);
-                        },
-                        child: Text("图片拼接"),
-                      ),
-                    ),
+                    // Divider(),
+                    // Padding(
+                    //   padding: EdgeInsets.all(16.0),
+                    //   child: OutlinedButton(
+                    //     onPressed: () {
+                    //       _mergeImage(
+                    //           "${_nameValueController.text} ${_time.hour.toString().padLeft(2, '0')}${_time.minute.toString().padLeft(2, '0')}",
+                    //           context);
+                    //     },
+                    //     child: Text("图片拼接"),
+                    //   ),
+                    // ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Card(
@@ -1070,7 +1069,7 @@ ${_logValueController.text}""";
                                             "1. 版本管理\n\t\t单击左上角标题切换任务版本，长按可以添加版本\n"),
                                         Text(
                                             "2. 任务管理\n\t\t单击右下角按钮来添加任务或订阅，点击任务查看详情，点击左侧圆点标记完成，左滑删除，订阅后出现订阅更新按钮可以更新当前订阅\n"),
-                                        Text("3. 统计信息\n\t\t单击右上角统计按钮来查看统计信息\n"),
+                                        Text("3. 统计信息\n\t\t单击右上角统计按钮来查看统计信息，需要先在更多功能页面填写昵称\n"),
                                       ],
                                     ),
                                     Text(
@@ -1244,8 +1243,9 @@ ${_logValueController.text}""";
                                                   Fluttertoast.showToast(
                                                       msg: "请在反馈文本页面填写群昵称！");
                                                 } else {
-                                                  await _getImage(
-                                                      index, context);
+                                                  // await _getImage(
+                                                  //     index, context);
+                                                  Fluttertoast.showToast(msg: "该接口已弃用");
                                                 }
                                               },
                                               child: Text("查看图片"),
@@ -1262,8 +1262,9 @@ ${_logValueController.text}""";
                                                   Fluttertoast.showToast(
                                                       msg: "请在反馈文本页面填写群昵称！");
                                                 } else {
-                                                  await _uploadImage(
-                                                      context, index);
+                                                  // await _uploadImage(
+                                                  //     context, index);
+                                                  Fluttertoast.showToast(msg: "此接口已弃用");
                                                 }
                                               },
                                               child: Text("上传截图"),
@@ -1584,59 +1585,59 @@ ${_logValueController.text}""";
     );
   }
 
-  Future<void> _uploadImage(BuildContext context, int index) async {
-    final List<AssetEntity>? result = await AssetPicker.pickAssets(context,
-        pickerConfig: const AssetPickerConfig(
-            maxAssets: 9, requestType: RequestType.image));
-    if (result != null) {
-      Fluttertoast.showToast(msg: "开始上传，请等待", toastLength: Toast.LENGTH_SHORT);
-      //final images = await ImageUtils.assetsToImages(result);
+  // Future<void> _uploadImage(BuildContext context, int index) async {
+  //   final List<AssetEntity>? result = await AssetPicker.pickAssets(context,
+  //       pickerConfig: const AssetPickerConfig(
+  //           maxAssets: 9, requestType: RequestType.image));
+  //   if (result != null) {
+  //     Fluttertoast.showToast(msg: "开始上传，请等待", toastLength: Toast.LENGTH_SHORT);
+  //     //final images = await ImageUtils.assetsToImages(result);
+  //
+  //     for (int i = 0; i < result.length; i++) {
+  //       final bytes = await ImageUtils.testCompressFile((await result[i]
+  //           .file)!); //await ImagesMergeHelper.imageToUint8List(images[i]);
+  //       await Client().putObject(
+  //           bytes!,
+  //           "$version/${missions[index].name}/${_nameValueController.text}/" +
+  //               result[i].title!);
+  //       Fluttertoast.showToast(
+  //           msg: "已上传完毕${i + 1}张", toastLength: Toast.LENGTH_SHORT);
+  //     }
+  //     Fluttertoast.showToast(msg: "上传完毕", toastLength: Toast.LENGTH_SHORT);
+  //   }
+  // }
 
-      for (int i = 0; i < result.length; i++) {
-        final bytes = await ImageUtils.testCompressFile((await result[i]
-            .file)!); //await ImagesMergeHelper.imageToUint8List(images[i]);
-        await Client().putObject(
-            bytes!,
-            "$version/${missions[index].name}/${_nameValueController.text}/" +
-                result[i].title!);
-        Fluttertoast.showToast(
-            msg: "已上传完毕${i + 1}张", toastLength: Toast.LENGTH_SHORT);
-      }
-      Fluttertoast.showToast(msg: "上传完毕", toastLength: Toast.LENGTH_SHORT);
-    }
-  }
+  // Future<void> _getImage(int index, BuildContext context) async {
+  //   final client = Client();
+  //   Fluttertoast.showToast(msg: "获取图片中，请等待", toastLength: Toast.LENGTH_SHORT);
+  //   final res = await client.listObjects(
+  //       "$version/${missions[index].name}/${_nameValueController.text}/");
+  //   List<String> images = XmlUtils.parseXmlToList(res.data);
+  //   if (images.isNotEmpty) {
+  //     List<ImageProvider> imageProviders = [];
+  //     for (String s in images) {
+  //       imageProviders.add(Image.network(
+  //         client.getObjectUrl(s),
+  //         headers: await client.getHeaders(s),
+  //       ).image);
+  //     }
+  //     MultiImageProvider multiImageProvider =
+  //         MultiImageProvider(imageProviders);
+  //     Fluttertoast.showToast(msg: "共${images.length}张图片");
+  //     showImageViewerPager(context, multiImageProvider,
+  //         useSafeArea: true, immersive: false);
+  //   } else {
+  //     Fluttertoast.showToast(msg: "没有图片");
+  //   }
+  // }
 
-  Future<void> _getImage(int index, BuildContext context) async {
-    final client = Client();
-    Fluttertoast.showToast(msg: "获取图片中，请等待", toastLength: Toast.LENGTH_SHORT);
-    final res = await client.listObjects(
-        "$version/${missions[index].name}/${_nameValueController.text}/");
-    List<String> images = XmlUtils.parseXmlToList(res.data);
-    if (images.isNotEmpty) {
-      List<ImageProvider> imageProviders = [];
-      for (String s in images) {
-        imageProviders.add(Image.network(
-          client.getObjectUrl(s),
-          headers: await client.getHeaders(s),
-        ).image);
-      }
-      MultiImageProvider multiImageProvider =
-          MultiImageProvider(imageProviders);
-      Fluttertoast.showToast(msg: "共${images.length}张图片");
-      showImageViewerPager(context, multiImageProvider,
-          useSafeArea: true, immersive: false);
-    } else {
-      Fluttertoast.showToast(msg: "没有图片");
-    }
-  }
-
-  _getVideo(String videoName, BuildContext context) async {
-    //createCFM();
-    final List<AssetEntity>? result = await AssetPicker.pickAssets(context,
-        pickerConfig: const AssetPickerConfig(
-            maxAssets: 1, requestType: RequestType.video));
-    (await result?.first.file)?.copy("/storage/emulated/0/DCIM/CFM/$videoName");
-  }
+  // _getVideo(String videoName, BuildContext context) async {
+  //   //createCFM();
+  //   final List<AssetEntity>? result = await AssetPicker.pickAssets(context,
+  //       pickerConfig: const AssetPickerConfig(
+  //           maxAssets: 1, requestType: RequestType.video));
+  //   (await result?.first.file)?.copy("/storage/emulated/0/DCIM/CFM/$videoName");
+  // }
 
   _getLog(bool isAlpha, BuildContext context) async {
     //createCFM();
@@ -1954,20 +1955,91 @@ ${_logValueController.text}""";
   }
 
   //合并截图
-  void _mergeImage(String imageName, BuildContext context) async {
-    try {
-      final List<AssetEntity>? result = await AssetPicker.pickAssets(context,
-          pickerConfig: const AssetPickerConfig(
-              maxAssets: 9, requestType: RequestType.image));
-      if (result != null) {
-        await ImageUtils.mergeImage(result, imageName);
-        Fluttertoast.showToast(msg: "已保存为$imageName.png");
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
+  // void _mergeImage(String imageName, BuildContext context) async {
+  //   try {
+  //     final List<AssetEntity>? result = await AssetPicker.pickAssets(context,
+  //         pickerConfig: const AssetPickerConfig(
+  //             maxAssets: 9, requestType: RequestType.image));
+  //     if (result != null) {
+  //       await ImageUtils.mergeImage(result, imageName);
+  //       Fluttertoast.showToast(msg: "已保存为$imageName.png");
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 }
+
+JPush? jpush = null;
+
+initJPushState() async{
+  if(jpush != null) return jpush;
+
+  jpush = JPush();
+
+  try {
+    if (Platform.isAndroid == true) {
+      var onPushForAndroid;
+      var onResumeForAndroid;
+      jpush?.addEventHandler(
+        // 接收通知回调方法。
+        onReceiveNotification: onPushForAndroid,
+        // 点击通知回调方法。
+        onOpenNotification: onResumeForAndroid,
+        // 接收自定义消息回调方法。
+        onReceiveMessage: (Map<String, dynamic> message) async {
+          print("flutter onReceiveMessage: $message");
+        },
+      );
+    } else if (Platform.isIOS == true) {
+      jpush?.addEventHandler(
+        // 接收通知回调方法。
+        onReceiveNotification: null,
+        // 点击通知回调方法。
+        onOpenNotification: null,
+        // 接收自定义消息回调方法。
+        onReceiveMessage: (Map<String, dynamic> message) async {
+          print("flutter onReceiveMessage: $message");
+        },
+      );
+    }
+  } on Exception {
+    print("--->获取平台版本失败");
+  }
+
+  jpush?.setup(
+      appKey: "5625d44a9544738ab82325c4",
+      channel: "developer-default",
+      production: false,
+      debug: true
+  );
+
+  //ios-权限获取
+  jpush?.applyPushAuthority(
+      new NotificationSettingsIOS(sound: true, alert: true, badge: true)
+  );
+
+  //获取极光设备id
+  jpush?.getRegistrationID().then((value) =>
+  {
+    //value值返回的是当前设备的极光唯一标识
+    //通常用来推送某一用户时，传递给极光的唯一标识
+  });
+
+  //测试发送消息通知
+//    var fireDate = DateTime.fromMillisecondsSinceEpoch(
+//        DateTime.now().millisecondsSinceEpoch + 5000);
+//    var noti = LocalNotification(
+//        id: 234,
+//        title: '测试',
+//        buildId: 1,
+//        content: '推送测试，测试测试',
+//        fireTime: fireDate,
+//        extra: {"fa": "0"});
+//    jpush.sendLocalNotification(noti).then((value) => null);
+
+}
+
 
 Future<void> insertMission(Mission m) async {
   // Get a reference to the database.
