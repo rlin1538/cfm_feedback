@@ -5,7 +5,6 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'Page/MyHomePage.dart';
 
-
 void main() async {
   // Avoid errors caused by flutter upgrade.
 // Importing 'package:flutter/widgets.dart' is required.
@@ -73,4 +72,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
