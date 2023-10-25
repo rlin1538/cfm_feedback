@@ -1,3 +1,4 @@
+import 'package:cfm_feedback/Page/FeedbackPage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:saf/saf.dart';
@@ -73,7 +74,7 @@ class _MorePageState extends State<MorePage> {
           //   },
           // ),
           ListTile(
-            leading: Icon(Icons.swap_horizontal_circle_outlined),
+            leading: Icon(Icons.swap_horizontal_circle),
             title: Text("键位备份"),
             subtitle: Text("键位备份、转移到其他账号"),
             onTap: () {
@@ -85,15 +86,26 @@ class _MorePageState extends State<MorePage> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.swap_horizontal_circle_outlined),
+            leading: Icon(Icons.casino),
             title: Text("赛事信息"),
-            subtitle: Text("查看战队详细信息，竞猜情况"),
+            subtitle: Text("查看战队详细信息，竞猜情况（等待施工）"),
             onTap: () {
               Fluttertoast.showToast(msg: "暂未完成");
               // Navigator.push(context,
               //     MaterialPageRoute(builder: (BuildContext context) {
               //       return JoyBackupPage();
               //     }));
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.feedback),
+            title: Text("反馈模板"),
+            subtitle: Text("反馈文本一键生成（已不再维护）"),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return FeedbackPage(title: "反馈模板");
+              }));
             },
           ),
           Divider(),
@@ -136,13 +148,13 @@ class _MorePageState extends State<MorePage> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text("关于此应用"),
+            leading: Icon(Icons.info),
+            title: Text("关于M组小工具"),
             onTap: () {
               showAboutDialog(
                 context: context,
                 applicationName: "M组小工具",
-                applicationVersion: "2.1.0",
+                applicationVersion: "2.2.0",
                 applicationLegalese: "@Rlin",
                 applicationIcon: Image.asset(
                   "assets/cf_icon.png",

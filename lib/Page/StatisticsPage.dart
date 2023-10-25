@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../main.dart';
+import '../Common/Mission.dart';
 
 class StatisticsPage extends StatefulWidget {
   List<Mission> missions;
