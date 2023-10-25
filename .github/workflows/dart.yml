@@ -6,9 +6,9 @@ name: CI/CD with Flutter
 on:
   # 当代码被推送到任意分支时，或者有新的Pull Request时，触发工作流
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
     tags:
       - 'v*'  # 当推送的标签名以v开头时，触发工作流，这常用于发布新版本
