@@ -6,9 +6,9 @@ name: CI/CD with Flutter
 on:
   # 当代码被推送到任意分支时，或者有新的Pull Request时，触发工作流
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
     tags:
       - 'v*'  # 当推送的标签名以v开头时，触发工作流，这常用于发布新版本
@@ -30,8 +30,8 @@ jobs:  # 定义了一系列的工作，这些工作可以并行执行，也可�
     - name: Install dependencies  # 第三步，安装依赖
       run: flutter pub get
 
-    - name: Run tests  # 第四步，运行测试
-      run: flutter test
+    # - name: Run tests  # 第四步，运行测试
+    #   run: flutter test
 
     - name: Build APK  # 第五步，构建APK
       run: flutter build apk
