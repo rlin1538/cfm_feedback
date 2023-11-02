@@ -31,9 +31,12 @@ class CfmerModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  CfmerModel(String name, String qq, String phone) {
-   this._name = name;
-   this._qq.text = qq;
-   this._phone.text = phone;
-  }
+  CfmerModel(String? name, String? qq, String? phone) {
+    if (name == null || name.isEmpty) name = "M【监测】";
+    this._name = name;
+    if (qq == null || qq.isEmpty) qq = "123";
+    this._qq.text = qq;
+    if (phone == null || phone.isEmpty) phone = "pixel3";
+    this._phone.text = phone;
+    }
 }

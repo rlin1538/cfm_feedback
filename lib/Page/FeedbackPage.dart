@@ -1,10 +1,10 @@
+import 'package:cfm_feedback/Widgets/NicknameCard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:saf/saf.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import '../Common/NetworkStatus.dart';
 import '../Model/CfmerModel.dart';
@@ -21,7 +21,6 @@ class FeedbackPage extends StatefulWidget {
 class _FeedbackPageState extends State<FeedbackPage> {
   String _serverValue = "正式服";
   var _nameValueController = TextEditingController();
-  String? _nameError;
   var _qqValueController = TextEditingController();
   String? _qqError;
   var _netWorkValueController = TextEditingController();
@@ -95,31 +94,49 @@ class _FeedbackPageState extends State<FeedbackPage> {
       body: Center(
         child: ListView(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                  borderRadius:
-                  const BorderRadius.all(Radius.circular(12)),
-                ),
-                child: Container(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    "先锋团M组专用，禁止外传！",
-                    style: GoogleFonts.maShanZheng(
-                      textStyle: TextStyle(
-                        color: Colors.red,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: Card(
+            //     elevation: 0,
+            //     shape: RoundedRectangleBorder(
+            //       side: BorderSide(
+            //         color: Theme.of(context).colorScheme.outline,
+            //       ),
+            //       borderRadius:
+            //       const BorderRadius.all(Radius.circular(12)),
+            //     ),
+            //     child: Container(
+            //       padding: EdgeInsets.all(16.0),
+            //       child: Text(
+            //         "先锋团M组专用，禁止外传！",
+            //         style: GoogleFonts.maShanZheng(
+            //           textStyle: TextStyle(
+            //             color: Colors.red,
+            //             fontSize: 20,
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            //群昵称
+            // Padding(
+            //     padding: const EdgeInsets.all(16.0),
+            //     child: Hero(
+            //       tag: "cfmer_name",
+            //       child: Text(
+            //         model.name,
+            //         style: TextStyle(
+            //             fontSize: 24
+            //         ),
+            //       ),
+            //     )
+            // ),
+            Hero(
+              tag: "cfm_name_card",
+              child: NicknameCard(model: model)
             ),
+            Divider(),
             Padding(
               padding: const EdgeInsets.only(
                 left: 16.0,
@@ -168,21 +185,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 ),
                 Text("千人服"),
               ],
-            ),
-            Divider(),
-//群昵称
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                controller: _nameValueController,
-                decoration: InputDecoration(
-                  hintText: "M【监测】寒心",
-                  enabled: false,
-                  labelText: "群昵称",
-                  border: OutlineInputBorder(),
-                  errorText: _nameError,
-                ),
-              ),
             ),
             Divider(),
 //QQ号
@@ -844,12 +846,6 @@ ${_logValueController.text}""";
   }
 
   bool checkAllEmpty() {
-    if (checkEmpty(_nameValueController.text) != null) {
-      setState(() {
-        _nameError = "未填写";
-      });
-      return true;
-    }
     if (checkEmpty(_qqValueController.text) != null) {
       setState(() {
         _qqError = "未填写";

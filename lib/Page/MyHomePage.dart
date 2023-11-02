@@ -45,7 +45,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
-        onDestinationSelected: (index) => setState(() => currentIndex = index),
+        onDestinationSelected: (index) => setState(() {
+          currentIndex = index;
+        }),
         destinations: [
           NavigationDestination(
             icon: Icon(Icons.table_rows),

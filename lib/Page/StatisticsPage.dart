@@ -23,21 +23,48 @@ class _StatisticsPageState extends State<StatisticsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(model.version + "版本统计"),
+        centerTitle: true,
         actions: [
           IconButton(
             onPressed: () {
               setState(() {
-                isVisible = ! isVisible;
+                isVisible = !isVisible;
               });
             },
-            icon: isVisible?Icon(Icons.visibility):Icon(Icons.visibility_off),
+            icon:
+                isVisible ? Icon(Icons.visibility) : Icon(Icons.visibility_off),
           ),
         ],
       ),
       body: Column(
         children: [
           Card(
-            margin: EdgeInsets.all(16.0),
+            margin: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20.0)),
+              side: BorderSide(
+                color: Colors.grey,
+                width: 1,
+              ),
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: Text(
+                    context.watch<CfmerModel>().name,
+                    style: GoogleFonts.zcoolXiaoWei(
+                      textStyle:
+                          TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Card(
+            margin: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(20.0)),
               side: BorderSide(
@@ -50,14 +77,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      context.watch<CfmerModel>().name,
-                      style: GoogleFonts.zcoolXiaoWei(textStyle: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),),
-                    ),
-                  ),
-                  Divider(),
                   Row(
                     children: [
                       Expanded(
@@ -72,7 +91,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
                                 isVisible ? _getMyPay().toString() : "****",
                                 style: TextStyle(
@@ -94,7 +114,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
                                 isVisible ? _getAllPay().toString() : "****",
                                 style: TextStyle(
@@ -121,7 +142,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
                                 _getMyFinished().toString(),
                                 style: TextStyle(
@@ -143,7 +165,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
                                 missions.length.toString(),
                                 style: TextStyle(
@@ -170,7 +193,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
                                 "${_getMyMainCount()}/${_getMainCount()}",
                                 style: TextStyle(
@@ -192,7 +216,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
                                 "${_getMyWeaponCount()}/${_getWeaponCount()}",
                                 style: TextStyle(
@@ -214,9 +239,10 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
-                                "${_getMyFinished()-_getMyMainCount()-_getMyWeaponCount()}/${missions.length-_getMainCount()-_getWeaponCount()}",
+                                "${_getMyFinished() - _getMyMainCount() - _getMyWeaponCount()}/${missions.length - _getMainCount() - _getWeaponCount()}",
                                 style: TextStyle(
                                     fontSize: 28, fontWeight: FontWeight.w700),
                               ),
@@ -241,7 +267,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
                                 _getPercent(_getMyMainCount(), _getMainCount()),
                                 style: TextStyle(
@@ -263,7 +290,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
                                 _getPercent(_getMyFinished(), missions.length),
                                 style: TextStyle(
@@ -296,8 +324,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
               ),
               decoration: BoxDecoration(
                 //color: (Theme.of(context).colorScheme.brightness != Brightness.dark) ? Colors.orange[100] : Colors.black26,
-                borderRadius:
-                BorderRadius.all(Radius.circular(16.0)),
+                borderRadius: BorderRadius.all(Radius.circular(16.0)),
               ),
               padding: EdgeInsets.all(8.0),
             ),
@@ -311,39 +338,41 @@ class _StatisticsPageState extends State<StatisticsPage> {
     missions = await getMissions(model.version);
   }
 
-
   int _getMainCount() {
     int sum = 0;
     for (int i = 0; i < missions.length; i++) {
       if (missions[i].content.startsWith("专项")) {
-        sum ++;
+        sum++;
       }
     }
     return sum;
   }
+
   int _getMyMainCount() {
     int sum = 0;
     for (int i = 0; i < missions.length; i++) {
-      if (missions[i].content.startsWith("专项") && missions[i].isFinished) {
-        sum ++;
+      if (missions[i].content.startsWith("专项") && missions[i].isFinished == 1) {
+        sum++;
       }
     }
     return sum;
   }
+
   int _getWeaponCount() {
     int sum = 0;
     for (int i = 0; i < missions.length; i++) {
       if (missions[i].content.startsWith("武器")) {
-        sum ++;
+        sum++;
       }
     }
     return sum;
   }
+
   int _getMyWeaponCount() {
     int sum = 0;
     for (int i = 0; i < missions.length; i++) {
-      if (missions[i].content.startsWith("武器") && missions[i].isFinished) {
-        sum ++;
+      if (missions[i].content.startsWith("武器") && missions[i].isFinished == 1) {
+        sum++;
       }
     }
     return sum;
@@ -356,10 +385,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
     }
     return sum;
   }
+
   int _getMyPay() {
     int sum = 0;
     for (int i = 0; i < missions.length; i++) {
-      if (missions[i].isFinished) {
+      if (missions[i].isFinished == 1) {
         sum += missions[i].pay;
       }
     }
@@ -369,15 +399,15 @@ class _StatisticsPageState extends State<StatisticsPage> {
   int _getMyFinished() {
     int sum = 0;
     for (int i = 0; i < missions.length; i++) {
-      if (missions[i].isFinished) {
-        sum ++;
+      if (missions[i].isFinished == 1) {
+        sum++;
       }
     }
     return sum;
   }
-  String _getPercent(int a, int b) {
-    double p = (a/b)*100;
-    return p.toStringAsFixed(2)+"%";
-  }
 
+  String _getPercent(int a, int b) {
+    double p = (a / b) * 100;
+    return p.toStringAsFixed(2) + "%";
+  }
 }

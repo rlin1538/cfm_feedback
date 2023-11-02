@@ -1,5 +1,6 @@
 import 'package:cfm_feedback/Model/CfmerModel.dart';
 import 'package:cfm_feedback/Page/FeedbackPage.dart';
+import 'package:cfm_feedback/Widgets/NicknameCard.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +12,6 @@ import 'JoyBackupPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MorePage extends StatefulWidget {
-
   @override
   State<MorePage> createState() => _MorePageState();
 }
@@ -37,26 +37,9 @@ class _MorePageState extends State<MorePage> {
       ),
       body: ListView(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _nameValueController,
-              onChanged: (v) {
-                if (_nameError != checkEmpty(v)) {
-                  setState(() {
-                    _nameError = checkEmpty(v);
-                  });
-                }
-                model.name = v;
-              },
-              textInputAction: TextInputAction.done,
-              decoration: InputDecoration(
-                hintText: "M【监测】寒心",
-                labelText: "群昵称",
-                border: OutlineInputBorder(),
-                errorText: _nameError,
-              ),
-            ),
+          Hero(
+            tag: "cfm_name_card",
+            child: NicknameCard(model: model,elevation: 0.0,),
           ),
           // Card(
           //   child: ListTile(
@@ -180,17 +163,17 @@ class _MorePageState extends State<MorePage> {
     return err;
   }
 
-  // _saveName() async {
-  //   var prefs = await SharedPreferences.getInstance();
-  //   prefs.setString("Name", _nameValueController.text);
-  // }
+// _saveName() async {
+//   var prefs = await SharedPreferences.getInstance();
+//   prefs.setString("Name", _nameValueController.text);
+// }
 
-  // void _loadData() async {
-  //   var prefs = await SharedPreferences.getInstance();
-  //   if (prefs.getString("Name") != null) {
-  //     _nameValueController.text = prefs.getString("Name").toString();
-  //   } else {
-  //     _nameValueController.text = "M【监测】";
-  //   }
-  // }
+// void _loadData() async {
+//   var prefs = await SharedPreferences.getInstance();
+//   if (prefs.getString("Name") != null) {
+//     _nameValueController.text = prefs.getString("Name").toString();
+//   } else {
+//     _nameValueController.text = "M【监测】";
+//   }
+// }
 }

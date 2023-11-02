@@ -4,7 +4,7 @@ class Mission {
   String content;
   int pay;
   String version;
-  bool isFinished;
+  int isFinished;
   String claim;
   String deadline;
   String url;
@@ -28,7 +28,7 @@ class Mission {
       'content': content,
       'pay': pay,
       'version': version,
-      'isFinished': isFinished ? 1 : 0,
+      'isFinished': isFinished,
       'claim': claim,
       'deadline': deadline,
       'url': url,

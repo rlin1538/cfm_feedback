@@ -65,7 +65,7 @@ Future<List<Mission>> getMissions(String version) async {
       content: maps[i]['content'],
       pay: maps[i]['pay'],
       version: maps[i]['version'],
-      isFinished: maps[i]['isFinished'] == 1 ? true : false,
+      isFinished: maps[i]['isFinished'],
       claim: maps[i]['claim'],
       url: maps[i]['url'],
       deadline: maps[i]['deadline'],

@@ -91,6 +91,8 @@ class _MissionPageState extends State<MissionPage> {
       appBar: AppBar(
         title: GestureDetector(
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(model.version + "任务管理"),
               Icon(Icons.keyboard_arrow_down),
@@ -144,6 +146,7 @@ class _MissionPageState extends State<MissionPage> {
             }
           },
         ),
+        centerTitle: true,
         actions: [
           Visibility(
             child: IconButton(
@@ -283,16 +286,14 @@ class _MissionPageState extends State<MissionPage> {
                 },
                 child: ListTile(
                   leading: IconButton(
-                    icon: missions[index].isFinished
-                        ? Icon(
-                            Icons.check_circle,
-                            color: Colors.green,
-                          )
-                        : Icon(Icons.radio_button_unchecked),
+                    icon: _getFinishStatus(missions[index].isFinished),
                     onPressed: () async {
                       setState(() {
-                        missions[index].isFinished =
-                            !missions[index].isFinished;
+                        if (missions[index].isFinished == 1) {
+                          missions[index].isFinished = 0;
+                        } else {
+                          missions[index].isFinished = 1;
+                        }
                       });
                       await updateMission(missions[index]);
                     },
@@ -410,7 +411,11 @@ class _MissionPageState extends State<MissionPage> {
                   },
                   onLongPress: () async {
                     setState(() {
-                      missions[index].isFinished = !missions[index].isFinished;
+                      if (missions[index].isFinished == 2) {
+                        missions[index].isFinished = 0;
+                      } else {
+                        missions[index].isFinished = 2;
+                      }
                     });
                     await updateMission(missions[index]);
                   },
@@ -599,7 +604,7 @@ class _MissionPageState extends State<MissionPage> {
                                     content: _missionContentController.text,
                                     pay: int.parse(_missionPayController.text),
                                     version: model.version,
-                                    isFinished: false,
+                                    isFinished: 0,
                                     url: _missionUrlController.text,
                                     deadline: _missionDeadlineController.text,
                                     claim: _missionClaimController.text,
@@ -713,7 +718,7 @@ class _MissionPageState extends State<MissionPage> {
         content: maps[i]['content'],
         pay: maps[i]['pay'],
         version: maps[i]['version'],
-        isFinished: maps[i]['isFinished'] == 1,
+        isFinished: maps[i]['isFinished'],
         claim: maps[i]['claim'],
         url: maps[i]['url'],
         deadline: maps[i]['deadline'],
@@ -727,6 +732,13 @@ class _MissionPageState extends State<MissionPage> {
         missions.add(m);
         await insertMission(m);
         count++;
+      }
+    }
+    // 新版本直接添加并切换
+    if (lists.isNotEmpty) {
+      if (! model.versions.contains(lists[0].version)) {
+        model.addVersion(lists[0].version);
+        model.version = lists[0].version;
       }
     }
 
@@ -855,6 +867,23 @@ class _MissionPageState extends State<MissionPage> {
     return err;
   }
 
+  Widget _getFinishStatus(int isFinished) {
+    switch (isFinished) {
+      case 0:
+        return Icon(Icons.radio_button_unchecked);
+      case 1:
+        return Icon(
+          Icons.check_circle,
+          color: Colors.green,
+        );
+      case 2:
+        return Icon(
+          Icons.not_interested,
+          color: Colors.red,
+        );
+    }
+    return Icon(Icons.radio_button_unchecked);
+  }
 //合并截图
 // void _mergeImage(String imageName, BuildContext context) async {
 //   try {

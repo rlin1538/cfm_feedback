@@ -15,7 +15,7 @@ class VersionModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<String>? get versions => _versions;
+  List<String> get versions => _versions;
 
   addVersion(String v) {
     _versions.add(v);
