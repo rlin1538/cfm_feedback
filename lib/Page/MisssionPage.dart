@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:ffi';
 
+import 'package:cfm_feedback/Model/MissionController.dart';
 import 'package:cfm_feedback/Model/VersionModel.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -17,14 +17,16 @@ import '../Common/Mission.dart';
 import '../Utils/DbUtils.dart';
 
 class MissionPage extends StatefulWidget {
-  const MissionPage({super.key});
+
+  const MissionPage({super.key, required this.missionController});
+  final MissionController missionController;
 
   @override
   State<MissionPage> createState() => _MissionPageState();
 }
 
 class _MissionPageState extends State<MissionPage> {
-  List<Mission> missions = [];
+  //List<Mission> widget.missionController.missions = [];
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
 
@@ -104,7 +106,7 @@ class _MissionPageState extends State<MissionPage> {
                 builder: (BuildContext context) {
                   return SimpleDialog(
                     children: model.versions
-                        ?.map((e) => InkWell(
+                        .map((e) => InkWell(
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
@@ -114,7 +116,8 @@ class _MissionPageState extends State<MissionPage> {
                               ),
                               onTap: () async {
                                 model.version = e;
-                                missions = await getMissions(model.version);
+                                //widget.missionController.missions = await getwidget.missionController.missions(model.version);
+                                widget.missionController.loadData(model);
                                 _saveData();
                                 setState(() {});
                                 Navigator.pop(context);
@@ -157,7 +160,8 @@ class _MissionPageState extends State<MissionPage> {
                 try {
                   int count = await _subscribe();
                   Fluttertoast.showToast(msg: "更新了$count条任务");
-                  missions = await getMissions(model.version);
+                  //widget.missionController.missions = await getwidget.missionController.missions(model.version);
+                  widget.missionController.loadData(model);
                   setState(() {});
                 } catch (e) {
                   Fluttertoast.showToast(msg: "订阅异常");
@@ -172,7 +176,7 @@ class _MissionPageState extends State<MissionPage> {
           //     Navigator.push(context,
           //         MaterialPageRoute(builder: (context) {
           //       return StatisticsPage(
-          //           missions, version, _nameValueController.text);
+          //           widget.missionController.missions, version, _nameValueController.text);
           //     }));
           //   },
           //   icon: Icon(Icons.insert_chart),
@@ -223,7 +227,8 @@ class _MissionPageState extends State<MissionPage> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          missions = await getMissions(model.version);
+          //widget.missionController.missions = await getwidget.missionController.missions(model.version);
+          widget.missionController.loadData(model);
           setState(() {});
         },
         child: Scrollbar(
@@ -266,8 +271,8 @@ class _MissionPageState extends State<MissionPage> {
                             TextButton(
                                 onPressed: () async {
                                   setState(() {
-                                    deleteMission(missions[index].id);
-                                    missions.removeAt(index);
+                                    deleteMission(widget.missionController.missions[index].id);
+                                    widget.missionController.missions.removeAt(index);
                                   });
                                   Navigator.of(context).pop(true);
                                 },
@@ -278,34 +283,35 @@ class _MissionPageState extends State<MissionPage> {
                   //return false;
                 },
                 onDismissed: (d) {
+                  //TODO 修复删除任务时报错
                   // setState(() {
-                  //   missions[index].isFinished = !missions[index].isFinished;
+                  //   widget.missionController.missions[index].isFinished = !widget.missionController.missions[index].isFinished;
                   // });
                   // ScaffoldMessenger.of(context)
-                  //     .showSnackBar(SnackBar(content: Text('${missions[index].name} dismissed')));
+                  //     .showSnackBar(SnackBar(content: Text('${widget.missionController.missions[index].name} dismissed')));
                 },
                 child: ListTile(
                   leading: IconButton(
-                    icon: _getFinishStatus(missions[index].isFinished),
+                    icon: _getFinishStatus(widget.missionController.missions[index].isFinished),
                     onPressed: () async {
                       setState(() {
-                        if (missions[index].isFinished == 1) {
-                          missions[index].isFinished = 0;
+                        if (widget.missionController.missions[index].isFinished == 1) {
+                          widget.missionController.missions[index].isFinished = 0;
                         } else {
-                          missions[index].isFinished = 1;
+                          widget.missionController.missions[index].isFinished = 1;
                         }
                       });
-                      await updateMission(missions[index]);
+                      await updateMission(widget.missionController.missions[index]);
                     },
                   ),
-                  title: Text(missions[index].name),
-                  subtitle: Text(missions[index].deadline +
+                  title: Text(widget.missionController.missions[index].name),
+                  subtitle: Text(widget.missionController.missions[index].deadline +
                       "\n" +
-                      missions[index].content),
+                      widget.missionController.missions[index].content),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(missions[index].pay.toString()),
+                      Text(widget.missionController.missions[index].pay.toString()),
                     ],
                   ),
                   onTap: () {
@@ -318,32 +324,32 @@ class _MissionPageState extends State<MissionPage> {
                           children: [
                             ListTile(
                               title: Text("任务名称"),
-                              subtitle: Text(missions[index].name),
+                              subtitle: Text(widget.missionController.missions[index].name),
                             ),
                             ListTile(
                               title: Text("任务内容"),
-                              subtitle: Text(missions[index].content),
+                              subtitle: Text(widget.missionController.missions[index].content),
                             ),
                             ListTile(
                               title: Text("任务要求"),
-                              subtitle: Text(missions[index].claim),
+                              subtitle: Text(widget.missionController.missions[index].claim),
                             ),
                             ListTile(
                               title: Text("任务奖励"),
-                              subtitle: Text(missions[index].pay.toString()),
+                              subtitle: Text(widget.missionController.missions[index].pay.toString()),
                             ),
                             ListTile(
                               title: Text("截止日期"),
-                              subtitle: Text(missions[index].deadline),
+                              subtitle: Text(widget.missionController.missions[index].deadline),
                             ),
                             ListTile(
                               title: Text("问卷链接"),
                               subtitle: Text(
-                                missions[index].url,
+                                widget.missionController.missions[index].url,
                                 style: TextStyle(color: Colors.blue),
                               ),
                               onTap: () {
-                                Uri url = Uri.parse(missions[index].url);
+                                Uri url = Uri.parse(widget.missionController.missions[index].url);
                                 launchUrl(url);
                               },
                             ),
@@ -411,13 +417,14 @@ class _MissionPageState extends State<MissionPage> {
                   },
                   onLongPress: () async {
                     setState(() {
-                      if (missions[index].isFinished == 2) {
-                        missions[index].isFinished = 0;
+                      if (widget.missionController.missions[index].isFinished == 2) {
+                        widget.missionController.missions[index].isFinished = 0;
                       } else {
-                        missions[index].isFinished = 2;
+                        widget.missionController.missions[index].isFinished = 2;
                       }
                     });
-                    await updateMission(missions[index]);
+                    widget.missionController.notifyMissionChange();
+                    await updateMission(widget.missionController.missions[index]);
                   },
                 ),
               );
@@ -425,7 +432,7 @@ class _MissionPageState extends State<MissionPage> {
             separatorBuilder: (BuildContext context, int index) => Divider(
               height: 1,
             ),
-            itemCount: missions.length,
+            itemCount: widget.missionController.missions.length,
           ),
         ),
       ),
@@ -610,7 +617,7 @@ class _MissionPageState extends State<MissionPage> {
                                     claim: _missionClaimController.text,
                                   );
                                   if (!checkContainMission(m)) {
-                                    missions.add(m);
+                                    widget.missionController.missions.add(m);
                                     insertMission(m);
                                     Fluttertoast.showToast(
                                       msg: "添加成功",
@@ -656,7 +663,7 @@ class _MissionPageState extends State<MissionPage> {
   //           .file)!); //await ImagesMergeHelper.imageToUint8List(images[i]);
   //       await Client().putObject(
   //           bytes!,
-  //           "$version/${missions[index].name}/${_nameValueController.text}/" +
+  //           "$version/${widget.missionController.missions[index].name}/${_nameValueController.text}/" +
   //               result[i].title!);
   //       Fluttertoast.showToast(
   //           msg: "已上传完毕${i + 1}张", toastLength: Toast.LENGTH_SHORT);
@@ -669,7 +676,7 @@ class _MissionPageState extends State<MissionPage> {
   //   final client = Client();
   //   Fluttertoast.showToast(msg: "获取图片中，请等待", toastLength: Toast.LENGTH_SHORT);
   //   final res = await client.listObjects(
-  //       "$version/${missions[index].name}/${_nameValueController.text}/");
+  //       "$version/${widget.missionController.missions[index].name}/${_nameValueController.text}/");
   //   List<String> images = XmlUtils.parseXmlToList(res.data);
   //   if (images.isNotEmpty) {
   //     List<ImageProvider> imageProviders = [];
@@ -729,7 +736,7 @@ class _MissionPageState extends State<MissionPage> {
       if (await containMissions(m.id)) {
         continue;
       } else {
-        missions.add(m);
+        widget.missionController.missions.add(m);
         await insertMission(m);
         count++;
       }
@@ -747,8 +754,8 @@ class _MissionPageState extends State<MissionPage> {
 
   _printAllMission() {
     String json = "";
-    if (kDebugMode && missions.isNotEmpty) {
-      for (Mission s in missions) {
+    if (kDebugMode && widget.missionController.missions.isNotEmpty) {
+      for (Mission s in widget.missionController.missions) {
         json = json + s.toJson() + ',';
         //print(s.toJson()+',');
       }
@@ -814,7 +821,8 @@ class _MissionPageState extends State<MissionPage> {
       isInitData = true;
         var prefs = await SharedPreferences.getInstance();
 
-        missions = await getMissions(model.version);
+      //widget.missionController.missions = await getwidget.missionController.missions(model.version);
+      widget.missionController.loadData(model);
         if (prefs.getBool("isSubscribed") != null) {
           isSubscribed = prefs.getBool("isSubscribed")!;
         }
@@ -826,12 +834,14 @@ class _MissionPageState extends State<MissionPage> {
             print("进入自动订阅");
             int count = await _subscribe();
             Fluttertoast.showToast(msg: "更新了$count条任务");
-            missions = await getMissions(model.version);
+            //widget.missionController.missions = await getwidget.missionController.missions(model.version);
+            widget.missionController.loadData(model);
           } catch (e) {
             Fluttertoast.showToast(msg: "订阅异常");
           }
         }
-      missions = await getMissions(model.version);
+      //widget.missionController.missions = await getwidget.missionController.missions(model.version);
+      widget.missionController.loadData(model);
       setState(() {});
     }
   }
@@ -845,8 +855,8 @@ class _MissionPageState extends State<MissionPage> {
   }
 
   bool checkContainMission(Mission m) {
-    for (int i = 0; i < missions.length; i++) {
-      if (m.id == missions[i].id) {
+    for (int i = 0; i < widget.missionController.missions.length; i++) {
+      if (m.id == widget.missionController.missions[i].id) {
         return true;
       }
     }

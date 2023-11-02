@@ -1,4 +1,5 @@
 import 'package:cfm_feedback/Model/CfmerModel.dart';
+import 'package:cfm_feedback/Model/MissionController.dart';
 import 'package:cfm_feedback/Model/VersionModel.dart';
 import 'package:cfm_feedback/Utils/DbUtils.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,10 @@ import 'package:provider/provider.dart';
 import '../Common/Mission.dart';
 
 class StatisticsPage extends StatefulWidget {
+  const StatisticsPage({Key? key, required this.missionController});
+
+  final MissionController missionController;
+
   @override
   State<StatisticsPage> createState() => _StatisticsPageState();
 }
@@ -15,11 +20,14 @@ class _StatisticsPageState extends State<StatisticsPage> {
   List<Mission> missions = [];
   bool isVisible = false;
 
+
+
   //const StatisticsPage({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final model = context.watch<VersionModel>();
-    _loadData(model);
+    missions = widget.missionController.missions;
+    // _loadData(model);
     return Scaffold(
       appBar: AppBar(
         title: Text(model.version + "版本统计"),
@@ -84,7 +92,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(top: 0.0),
+                              padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
                                 "获得奖励总数",
                                 style: TextStyle(fontSize: 16),
@@ -107,7 +115,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(top: 0.0),
+                              padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
                                 "版本奖励总数",
                                 style: TextStyle(fontSize: 16),
@@ -334,9 +342,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
     );
   }
 
-  _loadData(VersionModel model) async {
-    missions = await getMissions(model.version);
-  }
+  // _loadData(VersionModel model) async {
+  //   missions = await getMissions(model.version);
+  // }
 
   int _getMainCount() {
     int sum = 0;

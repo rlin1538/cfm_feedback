@@ -1,3 +1,4 @@
+import 'package:cfm_feedback/Model/MissionController.dart';
 import 'package:cfm_feedback/Page/MisssionPage.dart';
 import 'package:flutter/material.dart';
 import 'package:cfm_feedback/Page/MorePage.dart';
@@ -5,6 +6,8 @@ import 'package:cfm_feedback/Utils/PermissionUtils.dart';
 import 'package:cfm_feedback/Page/StatisticsPage.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Common/Mission.dart';
 
 
 class MyHomePage extends StatefulWidget {
@@ -18,6 +21,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int currentIndex = 0;
+  final missionController = MissionController();
 
   @override
   void initState() {
@@ -37,8 +41,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: IndexedStack(
           index: currentIndex,
           children: [
-            MissionPage(),
-            StatisticsPage(),
+            MissionPage(missionController: missionController),
+            StatisticsPage(missionController: missionController),
             MorePage(),
           ],
         ),
