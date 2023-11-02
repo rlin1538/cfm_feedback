@@ -1,6 +1,8 @@
+import 'package:cfm_feedback/Model/CfmerModel.dart';
 import 'package:cfm_feedback/Page/FeedbackPage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 import 'package:saf/saf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,9 +11,6 @@ import 'JoyBackupPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MorePage extends StatefulWidget {
-  String name;
-
-  MorePage(this.name);
 
   @override
   State<MorePage> createState() => _MorePageState();
@@ -24,11 +23,13 @@ class _MorePageState extends State<MorePage> {
   @override
   void initState() {
     super.initState();
-    _loadData();
   }
 
   @override
   Widget build(BuildContext context) {
+    final model = context.watch<CfmerModel>();
+    _nameValueController.text = model.name;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("更多功能"),
@@ -46,7 +47,7 @@ class _MorePageState extends State<MorePage> {
                     _nameError = checkEmpty(v);
                   });
                 }
-                _saveName();
+                model.name = v;
               },
               textInputAction: TextInputAction.done,
               decoration: InputDecoration(
@@ -179,17 +180,17 @@ class _MorePageState extends State<MorePage> {
     return err;
   }
 
-  _saveName() async {
-    var prefs = await SharedPreferences.getInstance();
-    prefs.setString("Name", _nameValueController.text);
-  }
+  // _saveName() async {
+  //   var prefs = await SharedPreferences.getInstance();
+  //   prefs.setString("Name", _nameValueController.text);
+  // }
 
-  void _loadData() async {
-    var prefs = await SharedPreferences.getInstance();
-    if (prefs.getString("Name") != null) {
-      _nameValueController.text = prefs.getString("Name").toString();
-    } else {
-      _nameValueController.text = "M【监测】";
-    }
-  }
+  // void _loadData() async {
+  //   var prefs = await SharedPreferences.getInstance();
+  //   if (prefs.getString("Name") != null) {
+  //     _nameValueController.text = prefs.getString("Name").toString();
+  //   } else {
+  //     _nameValueController.text = "M【监测】";
+  //   }
+  // }
 }

@@ -1,7 +1,11 @@
+import 'package:cfm_feedback/Model/CfmerModel.dart';
+import 'package:cfm_feedback/Model/VersionModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:path/path.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'Page/MyHomePage.dart';
 
@@ -29,6 +33,7 @@ void main() async {
     version: 3,
   );
   Globals.database = database;
+  Globals.prefs = await SharedPreferences.getInstance();
   //initJPushState();
 
   runApp(MyApp());
@@ -36,6 +41,7 @@ void main() async {
 
 class Globals {
   static late final database;
+  static late final prefs;
 }
 
 class MyApp extends StatefulWidget {
@@ -45,30 +51,59 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  //late SharedPreferences pref;
+
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'M组小工具',
-      theme: ThemeData(
-        //primarySwatch: Colors.orange,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.orange,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) {
+          return CfmerModel(
+              Globals.prefs.getString("Name").toString(),
+              Globals.prefs.getString("QQ").toString(),
+              Globals.prefs.getString("Phone").toString()
+          );
+        }),
+        ChangeNotifierProvider(create: (context) {
+          var version = Globals.prefs.getString("Version").toString();
+          var versions = [];
+          if (Globals.prefs.getStringList("Versions") != null) {
+            versions = Globals.prefs.getStringList("Versions")!;
+          } else {
+            versions.add("${DateTime.now().year}年${DateTime.now().month}月");
+            version = versions[0];
+          }
+          return VersionModel(
+              version,
+              versions
+          );
+        }),
+      ],
+      child: MaterialApp(
+        title: 'M组小工具',
+        theme: ThemeData(
+          //primarySwatch: Colors.orange,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.orange,
+          ),
+          useMaterial3: true,
         ),
-        useMaterial3: true,
+        darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          useMaterial3: true,
+        ),
+        home: MyHomePage(title: 'M组小工具'),
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [
+          const Locale('zh', 'CN'),
+        ],
       ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        useMaterial3: true,
-      ),
-      home: MyHomePage(title: 'M组小工具'),
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: [
-        const Locale('zh', 'CN'),
-      ],
     );
   }
+
 }

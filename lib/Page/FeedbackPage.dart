@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:saf/saf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import '../Common/NetworkStatus.dart';
+import '../Model/CfmerModel.dart';
 
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({Key? key, required this.title});
@@ -78,11 +80,13 @@ class _FeedbackPageState extends State<FeedbackPage> {
   @override
   void initState() {
     super.initState();
-    _loadData();
     createCFM();
   }
   @override
   Widget build(BuildContext context) {
+    final model = context.watch<CfmerModel>();
+    _loadData(model);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -171,17 +175,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
               padding: const EdgeInsets.all(16.0),
               child: TextField(
                 controller: _nameValueController,
-                onChanged: (v) {
-                  if (_nameError != checkEmpty(v)) {
-                    setState(() {
-                      _nameError = checkEmpty(v);
-                    });
-                  }
-                  _saveName();
-                },
-                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   hintText: "M【监测】寒心",
+                  enabled: false,
                   labelText: "群昵称",
                   border: OutlineInputBorder(),
                   errorText: _nameError,
@@ -695,7 +691,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             _videoValueController.text = "无";
           if (_logValueController.text == "")
             _logValueController.text = "无";
-          _saveData();
+          _saveData(model);
           String feedback = """$_serverValue
 ${_nameValueController.text}
 ${_qqValueController.text}
@@ -743,23 +739,25 @@ ${_logValueController.text}""";
     );
   }
 
-  void _loadData() async {
-    var prefs = await SharedPreferences.getInstance();
-    if (prefs.getString("Name") != null) {
-      _nameValueController.text = prefs.getString("Name").toString();
-    } else {
-      _nameValueController.text = "M【监测】";
-    }
-    if (prefs.getString("QQ") != null) {
-      _qqValueController.text = prefs.getString("QQ").toString();
-      print(prefs.getString("QQ").toString());
-    }
-    if (prefs.getString("Phone") != null) {
-      _phoneValueController.text = prefs.getString("Phone").toString();
-    }
+  void _loadData(CfmerModel model) async {
+    // var prefs = await SharedPreferences.getInstance();
+    // if (prefs.getString("Name") != null) {
+    //   _nameValueController.text = prefs.getString("Name").toString();
+    // } else {
+    //   _nameValueController.text = "M【监测】";
+    // }
+    // if (prefs.getString("QQ") != null) {
+    //   _qqValueController.text = prefs.getString("QQ").toString();
+    //   print(prefs.getString("QQ").toString());
+    // }
+    // if (prefs.getString("Phone") != null) {
+    //   _phoneValueController.text = prefs.getString("Phone").toString();
+    // }
+    _nameValueController.text = model.name;
+    _qqValueController = model.qq;
+    _phoneValueController = model.phone;
     _dateValueController.text =
     "${_date.year}年${_date.month}月${_date.day}日 ${_time.hour.toString().padLeft(2, '0')}:${_time.minute.toString().padLeft(2, '0')}";
-
   }
 
   _getLog(bool isAlpha, BuildContext context) async {
@@ -886,14 +884,16 @@ ${_logValueController.text}""";
   }
 
   // 数据持久化
-  _saveName() async {
-    var prefs = await SharedPreferences.getInstance();
-    prefs.setString("Name", _nameValueController.text);
-  }
-  _saveData() async {
-    var prefs = await SharedPreferences.getInstance();
-    prefs.setString("Name", _nameValueController.text);
-    prefs.setString("QQ", _qqValueController.text);
-    prefs.setString("Phone", _phoneValueController.text);
+  // _saveName() async {
+  //   var prefs = await SharedPreferences.getInstance();
+  //   prefs.setString("Name", _nameValueController.text);
+  // }
+  _saveData(CfmerModel model) async {
+    // var prefs = await SharedPreferences.getInstance();
+    // prefs.setString("Name", _nameValueController.text);
+    // prefs.setString("QQ", _qqValueController.text);
+    // prefs.setString("Phone", _phoneValueController.text);
+    model.setQQ(_qqValueController.text);
+    model.setPhone(_phoneValueController.text);
   }
 }

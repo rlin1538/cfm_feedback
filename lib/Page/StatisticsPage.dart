@@ -1,27 +1,28 @@
+import 'package:cfm_feedback/Model/CfmerModel.dart';
+import 'package:cfm_feedback/Model/VersionModel.dart';
+import 'package:cfm_feedback/Utils/DbUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../Common/Mission.dart';
 
 class StatisticsPage extends StatefulWidget {
-  List<Mission> missions;
-  String version;
-  String nickname;
-
-  StatisticsPage(this.missions, this.version, this.nickname);
-
   @override
   State<StatisticsPage> createState() => _StatisticsPageState();
 }
 
 class _StatisticsPageState extends State<StatisticsPage> {
+  List<Mission> missions = [];
   bool isVisible = false;
 
   //const StatisticsPage({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    final model = context.watch<VersionModel>();
+    _loadData(model);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.version + "版本统计"),
+        title: Text(model.version + "版本统计"),
         actions: [
           IconButton(
             onPressed: () {
@@ -52,7 +53,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
-                      widget.nickname,
+                      context.watch<CfmerModel>().name,
                       style: GoogleFonts.zcoolXiaoWei(textStyle: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),),
                     ),
                   ),
@@ -144,7 +145,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             Padding(
                               padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
-                                widget.missions.length.toString(),
+                                missions.length.toString(),
                                 style: TextStyle(
                                     fontSize: 28, fontWeight: FontWeight.w700),
                               ),
@@ -215,7 +216,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             Padding(
                               padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
-                                "${_getMyFinished()-_getMyMainCount()-_getMyWeaponCount()}/${widget.missions.length-_getMainCount()-_getWeaponCount()}",
+                                "${_getMyFinished()-_getMyMainCount()-_getMyWeaponCount()}/${missions.length-_getMainCount()-_getWeaponCount()}",
                                 style: TextStyle(
                                     fontSize: 28, fontWeight: FontWeight.w700),
                               ),
@@ -264,7 +265,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             Padding(
                               padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
-                                _getPercent(_getMyFinished(), widget.missions.length),
+                                _getPercent(_getMyFinished(), missions.length),
                                 style: TextStyle(
                                     fontSize: 28, fontWeight: FontWeight.w700),
                               ),
@@ -306,10 +307,15 @@ class _StatisticsPageState extends State<StatisticsPage> {
     );
   }
 
+  _loadData(VersionModel model) async {
+    missions = await getMissions(model.version);
+  }
+
+
   int _getMainCount() {
     int sum = 0;
-    for (int i = 0; i < widget.missions.length; i++) {
-      if (widget.missions[i].content.startsWith("专项")) {
+    for (int i = 0; i < missions.length; i++) {
+      if (missions[i].content.startsWith("专项")) {
         sum ++;
       }
     }
@@ -317,8 +323,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
   int _getMyMainCount() {
     int sum = 0;
-    for (int i = 0; i < widget.missions.length; i++) {
-      if (widget.missions[i].content.startsWith("专项") && widget.missions[i].isFinished) {
+    for (int i = 0; i < missions.length; i++) {
+      if (missions[i].content.startsWith("专项") && missions[i].isFinished) {
         sum ++;
       }
     }
@@ -326,8 +332,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
   int _getWeaponCount() {
     int sum = 0;
-    for (int i = 0; i < widget.missions.length; i++) {
-      if (widget.missions[i].content.startsWith("武器")) {
+    for (int i = 0; i < missions.length; i++) {
+      if (missions[i].content.startsWith("武器")) {
         sum ++;
       }
     }
@@ -335,8 +341,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
   int _getMyWeaponCount() {
     int sum = 0;
-    for (int i = 0; i < widget.missions.length; i++) {
-      if (widget.missions[i].content.startsWith("武器") && widget.missions[i].isFinished) {
+    for (int i = 0; i < missions.length; i++) {
+      if (missions[i].content.startsWith("武器") && missions[i].isFinished) {
         sum ++;
       }
     }
@@ -345,16 +351,16 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   int _getAllPay() {
     int sum = 0;
-    for (int i = 0; i < widget.missions.length; i++) {
-      sum += widget.missions[i].pay;
+    for (int i = 0; i < missions.length; i++) {
+      sum += missions[i].pay;
     }
     return sum;
   }
   int _getMyPay() {
     int sum = 0;
-    for (int i = 0; i < widget.missions.length; i++) {
-      if (widget.missions[i].isFinished) {
-        sum += widget.missions[i].pay;
+    for (int i = 0; i < missions.length; i++) {
+      if (missions[i].isFinished) {
+        sum += missions[i].pay;
       }
     }
     return sum;
@@ -362,8 +368,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   int _getMyFinished() {
     int sum = 0;
-    for (int i = 0; i < widget.missions.length; i++) {
-      if (widget.missions[i].isFinished) {
+    for (int i = 0; i < missions.length; i++) {
+      if (missions[i].isFinished) {
         sum ++;
       }
     }

@@ -19,7 +19,7 @@ version: 2.2.0+16
 # flutter build apk --obfuscate --split-debug-info=debugInfo --target-platform android-arm,android-arm64,android-x64 --split-per-abi
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -55,7 +55,7 @@ dependencies:
   easy_image_viewer: ^1.0.4
   flutter_image_compress: ^1.1.0
   flutter_highlight: ^0.7.0
-  jpush_flutter: ^2.4.0
+  provider: ^6.0.5
 
 dev_dependencies:
   flutter_test:
