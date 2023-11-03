@@ -1,6 +1,6 @@
-# cfm_feedback
+# M组小工具
 
-A cfm feedback application.
+A cfm test mission manager and feedback builder application.
 
 ## Getting Started
 
