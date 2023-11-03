@@ -9,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'Common/Globals.dart';
 import 'Page/MyHomePage.dart';
-import 'Utils/PermissionUtils.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +35,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   void initState() {
     super.initState();
@@ -79,7 +77,6 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
-
 }
 
 getData() async {
@@ -87,11 +84,8 @@ getData() async {
   Globals.prefs = await SharedPreferences.getInstance();
 
   // 初始化模型
-  Globals.cfmerModel = CfmerModel(
-      Globals.prefs.getString("Name"),
-      Globals.prefs.getString("QQ"),
-      Globals.prefs.getString("Phone")
-  );
+  Globals.cfmerModel = CfmerModel(Globals.prefs.getString("Name"),
+      Globals.prefs.getString("QQ"), Globals.prefs.getString("Phone"));
   var version = Globals.prefs.getString("Version").toString();
   List<String> versions = [];
   if (Globals.prefs.getStringList("Versions") != null) {
@@ -100,8 +94,5 @@ getData() async {
     versions.add("${DateTime.now().year}年${DateTime.now().month}月");
     version = versions[0];
   }
-  Globals.versionModel = VersionModel(
-      version,
-      versions
-  );
+  Globals.versionModel = VersionModel(version, versions);
 }

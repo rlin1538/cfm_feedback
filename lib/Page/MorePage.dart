@@ -37,7 +37,10 @@ class _MorePageState extends State<MorePage> {
         children: [
           Hero(
             tag: "cfm_name_card",
-            child: NicknameCard(model: model,elevation: 0.0,),
+            child: NicknameCard(
+              model: model,
+              elevation: 0.0,
+            ),
           ),
           // Card(
           //   child: ListTile(

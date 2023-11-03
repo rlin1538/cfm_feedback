@@ -6,7 +6,6 @@ class VersionModel extends ChangeNotifier {
   String _version = "";
   List<String> _versions = [];
 
-
   String get version => _version;
 
   set version(String value) {
@@ -24,7 +23,7 @@ class VersionModel extends ChangeNotifier {
   }
 
   VersionModel(version, versions) {
-  this._version = version;
-  this._versions = versions;
+    this._version = version;
+    this._versions = versions;
   }
 }

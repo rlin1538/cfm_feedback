@@ -1,7 +1,6 @@
 import 'package:cfm_feedback/Model/CfmerModel.dart';
 import 'package:cfm_feedback/Model/MissionController.dart';
 import 'package:cfm_feedback/Model/VersionModel.dart';
-import 'package:cfm_feedback/Utils/DbUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -19,8 +18,6 @@ class StatisticsPage extends StatefulWidget {
 class _StatisticsPageState extends State<StatisticsPage> {
   List<Mission> missions = [];
   bool isVisible = false;
-
-
 
   //const StatisticsPage({Key? key}) : super(key: key);
   @override
@@ -66,8 +63,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       child: Text(
                         context.watch<CfmerModel>().name,
                         style: GoogleFonts.zcoolXiaoWei(
-                          textStyle:
-                              TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
+                          textStyle: TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.w500),
                         ),
                       ),
                     ),
@@ -88,7 +85,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             ),
                             Padding(
                               padding:
-                              const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
                                 isVisible ? _getMyPay().toString() : "****",
                                 style: TextStyle(
@@ -111,7 +108,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             ),
                             Padding(
                               padding:
-                              const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
                                 isVisible ? _getAllPay().toString() : "****",
                                 style: TextStyle(
@@ -158,12 +155,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                 ),
                               ),
                               Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                                padding: const EdgeInsets.only(
+                                    top: 8.0, bottom: 8.0),
                                 child: Text(
                                   _getMyFinished().toString(),
                                   style: TextStyle(
-                                      fontSize: 28, fontWeight: FontWeight.w700),
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w700),
                                 ),
                               ),
                             ],
@@ -181,12 +179,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                 ),
                               ),
                               Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                                padding: const EdgeInsets.only(
+                                    top: 8.0, bottom: 8.0),
                                 child: Text(
                                   missions.length.toString(),
                                   style: TextStyle(
-                                      fontSize: 28, fontWeight: FontWeight.w700),
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w700),
                                 ),
                               ),
                             ],
