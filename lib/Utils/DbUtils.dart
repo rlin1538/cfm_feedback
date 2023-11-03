@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 
+import '../Common/Globals.dart';
 import '../Common/Mission.dart';
-import '../main.dart';
 
 Future<void> insertMission(Mission m) async {
   // Get a reference to the database.

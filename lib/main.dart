@@ -7,7 +7,9 @@ import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import 'Common/Globals.dart';
 import 'Page/MyHomePage.dart';
+import 'Utils/PermissionUtils.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -28,21 +30,18 @@ void main() async {
   runApp(MyApp());
 }
 
-class Globals {
-  static late final database;
-  static late final prefs;
-  static late final CfmerModel cfmerModel;
-  static late final VersionModel versionModel;
-}
-
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  //late SharedPreferences pref;
 
+  @override
+  void initState() {
+    super.initState();
+    FlutterNativeSplash.remove();
+  }
 
   @override
   Widget build(BuildContext context) {

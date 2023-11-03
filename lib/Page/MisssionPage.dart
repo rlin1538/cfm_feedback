@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
@@ -8,17 +9,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Common/Mission.dart';
 import '../Utils/DbUtils.dart';
+import '../Widgets/HelpDialog.dart';
 
 class MissionPage extends StatefulWidget {
-
   const MissionPage({super.key, required this.missionController});
+
   final MissionController missionController;
 
   @override
@@ -88,6 +89,7 @@ class _MissionPageState extends State<MissionPage> {
   Widget build(BuildContext context) {
     model = context.watch<VersionModel>();
     _loadData(model);
+    Timer(Duration(seconds: 1), () => setState(() { }));
 
     return Scaffold(
       appBar: AppBar(
@@ -188,36 +190,7 @@ class _MissionPageState extends State<MissionPage> {
                   context: context,
                   builder: (BuildContext context) {
                     //_getClip();
-                    return SimpleDialog(title: Text("开始使用"), children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("1. 版本管理\n\t\t单击左上角标题切换任务版本，长按可以添加版本\n"),
-                                Text(
-                                    "2. 任务管理\n\t\t单击右下角按钮来添加任务或订阅，点击任务查看详情，点击左侧圆点标记完成，左滑删除，订阅后出现订阅更新按钮可以更新当前订阅\n"),
-                                Text(
-                                    "3. 统计信息\n\t\t单击右上角统计按钮来查看统计信息，需要先在更多功能页面填写昵称\n"),
-                              ],
-                            ),
-                            Text(
-                              "本软件及内容为内部人员自用，禁止外传\n",
-                              style: TextStyle(color: Colors.red),
-                            ),
-                            Text(
-                              "By M寒心",
-                              style: GoogleFonts.zhiMangXing(
-                                textStyle:
-                                    TextStyle(color: Colors.grey, fontSize: 28),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ]);
+                    return AppHelpDialog();
                   });
             },
             icon: Icon(Icons.help),
@@ -235,7 +208,7 @@ class _MissionPageState extends State<MissionPage> {
           child: ListView.separated(
             itemBuilder: (BuildContext context, int index) {
               return Dismissible(
-                key: Key(index.toString()),
+                key: ValueKey(widget.missionController.missions[index].name),
                 background: Container(
                   padding: EdgeInsets.only(right: 20.0),
                   child: Row(
@@ -270,10 +243,6 @@ class _MissionPageState extends State<MissionPage> {
                                 child: Text("取消")),
                             TextButton(
                                 onPressed: () async {
-                                  setState(() {
-                                    deleteMission(widget.missionController.missions[index].id);
-                                    widget.missionController.missions.removeAt(index);
-                                  });
                                   Navigator.of(context).pop(true);
                                 },
                                 child: Text("确认")),
@@ -283,7 +252,11 @@ class _MissionPageState extends State<MissionPage> {
                   //return false;
                 },
                 onDismissed: (d) {
-                  //TODO 修复删除任务时报错
+                  print("onDismissed");
+                  setState(() {
+                    deleteMission(widget.missionController.missions[index].id);
+                    widget.missionController.missions.removeAt(index);
+                  });
                   // setState(() {
                   //   widget.missionController.missions[index].isFinished = !widget.missionController.missions[index].isFinished;
                   // });
@@ -292,26 +265,34 @@ class _MissionPageState extends State<MissionPage> {
                 },
                 child: ListTile(
                   leading: IconButton(
-                    icon: _getFinishStatus(widget.missionController.missions[index].isFinished),
+                    icon: _getFinishStatus(
+                        widget.missionController.missions[index].isFinished),
                     onPressed: () async {
                       setState(() {
-                        if (widget.missionController.missions[index].isFinished == 1) {
-                          widget.missionController.missions[index].isFinished = 0;
+                        if (widget
+                                .missionController.missions[index].isFinished ==
+                            1) {
+                          widget.missionController.missions[index].isFinished =
+                              0;
                         } else {
-                          widget.missionController.missions[index].isFinished = 1;
+                          widget.missionController.missions[index].isFinished =
+                              1;
                         }
                       });
-                      await updateMission(widget.missionController.missions[index]);
+                      await updateMission(
+                          widget.missionController.missions[index]);
                     },
                   ),
                   title: Text(widget.missionController.missions[index].name),
-                  subtitle: Text(widget.missionController.missions[index].deadline +
-                      "\n" +
-                      widget.missionController.missions[index].content),
+                  subtitle: Text(
+                      widget.missionController.missions[index].deadline +
+                          "\n" +
+                          widget.missionController.missions[index].content),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(widget.missionController.missions[index].pay.toString()),
+                      Text(widget.missionController.missions[index].pay
+                          .toString()),
                     ],
                   ),
                   onTap: () {
@@ -324,23 +305,29 @@ class _MissionPageState extends State<MissionPage> {
                           children: [
                             ListTile(
                               title: Text("任务名称"),
-                              subtitle: Text(widget.missionController.missions[index].name),
+                              subtitle: Text(widget
+                                  .missionController.missions[index].name),
                             ),
                             ListTile(
                               title: Text("任务内容"),
-                              subtitle: Text(widget.missionController.missions[index].content),
+                              subtitle: Text(widget
+                                  .missionController.missions[index].content),
                             ),
                             ListTile(
                               title: Text("任务要求"),
-                              subtitle: Text(widget.missionController.missions[index].claim),
+                              subtitle: Text(widget
+                                  .missionController.missions[index].claim),
                             ),
                             ListTile(
                               title: Text("任务奖励"),
-                              subtitle: Text(widget.missionController.missions[index].pay.toString()),
+                              subtitle: Text(widget
+                                  .missionController.missions[index].pay
+                                  .toString()),
                             ),
                             ListTile(
                               title: Text("截止日期"),
-                              subtitle: Text(widget.missionController.missions[index].deadline),
+                              subtitle: Text(widget
+                                  .missionController.missions[index].deadline),
                             ),
                             ListTile(
                               title: Text("问卷链接"),
@@ -349,7 +336,8 @@ class _MissionPageState extends State<MissionPage> {
                                 style: TextStyle(color: Colors.blue),
                               ),
                               onTap: () {
-                                Uri url = Uri.parse(widget.missionController.missions[index].url);
+                                Uri url = Uri.parse(widget
+                                    .missionController.missions[index].url);
                                 launchUrl(url);
                               },
                             ),
@@ -417,14 +405,16 @@ class _MissionPageState extends State<MissionPage> {
                   },
                   onLongPress: () async {
                     setState(() {
-                      if (widget.missionController.missions[index].isFinished == 2) {
+                      if (widget.missionController.missions[index].isFinished ==
+                          2) {
                         widget.missionController.missions[index].isFinished = 0;
                       } else {
                         widget.missionController.missions[index].isFinished = 2;
                       }
                     });
                     widget.missionController.notifyMissionChange();
-                    await updateMission(widget.missionController.missions[index]);
+                    await updateMission(
+                        widget.missionController.missions[index]);
                   },
                 ),
               );
@@ -446,6 +436,9 @@ class _MissionPageState extends State<MissionPage> {
                 return SimpleDialog(
                   title: Text("添加任务"),
                   children: [
+                    SizedBox(
+                      width: 400,
+                    ),
                     Padding(
                       padding: EdgeInsets.only(left: 16.0, right: 16.0),
                       child: Container(
@@ -461,7 +454,7 @@ class _MissionPageState extends State<MissionPage> {
                         decoration: BoxDecoration(
                           color: (Theme.of(context).colorScheme.brightness !=
                                   Brightness.dark)
-                              ? Colors.orange[100]
+                              ? Colors.green[100]
                               : Colors.black26,
                           borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         ),
@@ -743,7 +736,7 @@ class _MissionPageState extends State<MissionPage> {
     }
     // 新版本直接添加并切换
     if (lists.isNotEmpty) {
-      if (! model.versions.contains(lists[0].version)) {
+      if (!model.versions.contains(lists[0].version)) {
         model.addVersion(lists[0].version);
         model.version = lists[0].version;
       }
@@ -819,30 +812,29 @@ class _MissionPageState extends State<MissionPage> {
   _loadData(VersionModel model) async {
     if (!isInitData) {
       isInitData = true;
-        var prefs = await SharedPreferences.getInstance();
+      var prefs = await SharedPreferences.getInstance();
 
       //widget.missionController.missions = await getwidget.missionController.missions(model.version);
       widget.missionController.loadData(model);
-        if (prefs.getBool("isSubscribed") != null) {
-          isSubscribed = prefs.getBool("isSubscribed")!;
+      if (prefs.getBool("isSubscribed") != null) {
+        isSubscribed = prefs.getBool("isSubscribed")!;
+      }
+      if (prefs.getString("subscribeURL") != null) {
+        subscribeURL = prefs.getString("subscribeURL")!;
+      }
+      if (isSubscribed) {
+        try {
+          print("进入自动订阅");
+          int count = await _subscribe();
+          Fluttertoast.showToast(msg: "更新了$count条任务");
+          //widget.missionController.missions = await getwidget.missionController.missions(model.version);
+          widget.missionController.loadData(model);
+        } catch (e) {
+          Fluttertoast.showToast(msg: "订阅异常");
         }
-        if (prefs.getString("subscribeURL") != null) {
-          subscribeURL = prefs.getString("subscribeURL")!;
-        }
-        if (isSubscribed) {
-          try {
-            print("进入自动订阅");
-            int count = await _subscribe();
-            Fluttertoast.showToast(msg: "更新了$count条任务");
-            //widget.missionController.missions = await getwidget.missionController.missions(model.version);
-            widget.missionController.loadData(model);
-          } catch (e) {
-            Fluttertoast.showToast(msg: "订阅异常");
-          }
-        }
+      }
       //widget.missionController.missions = await getwidget.missionController.missions(model.version);
       widget.missionController.loadData(model);
-      setState(() {});
     }
   }
 

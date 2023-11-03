@@ -47,44 +47,32 @@ class _StatisticsPageState extends State<StatisticsPage> {
       body: Column(
         children: [
           Card(
+            elevation: 6.0,
             margin: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(20.0)),
-              side: BorderSide(
-                color: Colors.grey,
-                width: 1,
-              ),
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Center(
-                  child: Text(
-                    context.watch<CfmerModel>().name,
-                    style: GoogleFonts.zcoolXiaoWei(
-                      textStyle:
-                          TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Card(
-            margin: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(20.0)),
-              side: BorderSide(
-                color: Colors.grey,
-                width: 1,
-              ),
+              // side: BorderSide(
+              //   color: Colors.grey,
+              //   width: 1,
+              // ),
             ),
             child: SizedBox(
               width: double.infinity,
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: Center(
+                      child: Text(
+                        context.watch<CfmerModel>().name,
+                        style: GoogleFonts.zcoolXiaoWei(
+                          textStyle:
+                              TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Divider(),
                   Row(
                     children: [
                       Expanded(
@@ -100,7 +88,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             ),
                             Padding(
                               padding:
-                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
                                 isVisible ? _getMyPay().toString() : "****",
                                 style: TextStyle(
@@ -123,7 +111,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             ),
                             Padding(
                               padding:
-                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              const EdgeInsets.only(top: 8.0, bottom: 8.0),
                               child: Text(
                                 isVisible ? _getAllPay().toString() : "****",
                                 style: TextStyle(
@@ -135,56 +123,77 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       ),
                     ],
                   ),
-                  Divider(),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 0.0),
-                              child: Text(
-                                "完成任务数",
-                                style: TextStyle(fontSize: 16),
+                ],
+              ),
+            ),
+          ),
+          Card(
+            elevation: 6.0,
+            margin: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20.0)),
+              // side: BorderSide(
+              //   color: Colors.grey,
+              //   width: 1,
+              // ),
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 0.0),
+                                child: Text(
+                                  "完成任务数",
+                                  style: TextStyle(fontSize: 16),
+                                ),
                               ),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                              child: Text(
-                                _getMyFinished().toString(),
-                                style: TextStyle(
-                                    fontSize: 28, fontWeight: FontWeight.w700),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                                child: Text(
+                                  _getMyFinished().toString(),
+                                  style: TextStyle(
+                                      fontSize: 28, fontWeight: FontWeight.w700),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 0.0),
-                              child: Text(
-                                "总任务数",
-                                style: TextStyle(fontSize: 16),
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 0.0),
+                                child: Text(
+                                  "总任务数",
+                                  style: TextStyle(fontSize: 16),
+                                ),
                               ),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                              child: Text(
-                                missions.length.toString(),
-                                style: TextStyle(
-                                    fontSize: 28, fontWeight: FontWeight.w700),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                                child: Text(
+                                  missions.length.toString(),
+                                  style: TextStyle(
+                                      fontSize: 28, fontWeight: FontWeight.w700),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   Divider(),
                   Row(
@@ -316,25 +325,36 @@ class _StatisticsPageState extends State<StatisticsPage> {
             ),
             //elevation: 3.0,
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.warning,
-                    size: 18,
-                    color: Colors.redAccent,
-                  ),
-                  Text("  截图时请隐藏奖励数额"),
-                ],
+          Card(
+            elevation: 6.0,
+            margin: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20.0)),
+              // side: BorderSide(
+              //   color: Colors.grey,
+              //   width: 1,
+              // ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.warning,
+                      size: 18,
+                      color: Colors.redAccent,
+                    ),
+                    Text("  截图时请隐藏奖励数额"),
+                  ],
+                ),
+                decoration: BoxDecoration(
+                  //color: (Theme.of(context).colorScheme.brightness != Brightness.dark) ? Colors.orange[100] : Colors.black26,
+                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                ),
+                padding: EdgeInsets.all(8.0),
               ),
-              decoration: BoxDecoration(
-                //color: (Theme.of(context).colorScheme.brightness != Brightness.dark) ? Colors.orange[100] : Colors.black26,
-                borderRadius: BorderRadius.all(Radius.circular(16.0)),
-              ),
-              padding: EdgeInsets.all(8.0),
             ),
           ),
         ],
