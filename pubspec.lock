@@ -97,6 +97,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.6"
+  dynamic_color:
+    dependency: "direct main"
+    description:
+      name: dynamic_color
+      sha256: "8b8bd1d798bd393e11eddeaa8ae95b12ff028bf7d5998fc5d003488cd5f4ce2f"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.6.8"
   easy_image_viewer:
     dependency: "direct main"
     description:
@@ -249,10 +257,10 @@ packages:
     dependency: "direct main"
     description:
       name: image_gallery_saver
-      sha256: be812580c7a320d3bf583af89cac6b376f170d48000aca75215a73285a3223a0
+      sha256: "0aba74216a4d9b0561510cb968015d56b701ba1bd94aace26aacdd8ae5761816"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.7.1"
+    version: "2.0.3"
   image_watermark:
     dependency: "direct main"
     description:

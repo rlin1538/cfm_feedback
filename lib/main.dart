@@ -1,5 +1,6 @@
 import 'package:cfm_feedback/Model/CfmerModel.dart';
 import 'package:cfm_feedback/Model/VersionModel.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -52,28 +53,31 @@ class _MyAppState extends State<MyApp> {
           return Globals.versionModel;
         }),
       ],
-      child: MaterialApp(
-        title: 'M组小工具',
-        theme: ThemeData(
-          //primarySwatch: Colors.orange,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.lightGreen,
-          ),
-          useMaterial3: true,
-        ),
-        darkTheme: ThemeData(
-          brightness: Brightness.dark,
-          useMaterial3: true,
-        ),
-        home: MyHomePage(title: 'M组小工具'),
-        localizationsDelegates: [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: [
-          const Locale('zh', 'CN'),
-        ],
+      child: DynamicColorBuilder(
+        builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+          return MaterialApp(
+            title: 'M组小工具',
+            theme: ThemeData(
+              //primarySwatch: Colors.orange,
+              colorScheme: lightDynamic,
+              useMaterial3: true,
+            ),
+            darkTheme: ThemeData(
+              brightness: Brightness.dark,
+              colorScheme: darkDynamic,
+              useMaterial3: true,
+            ),
+            home: MyHomePage(title: 'M组小工具'),
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [
+              const Locale('zh', 'CN'),
+            ],
+          );
+        },
       ),
     );
   }

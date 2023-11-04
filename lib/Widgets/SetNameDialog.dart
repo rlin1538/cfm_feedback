@@ -16,7 +16,7 @@ class SetNameDialog extends StatelessWidget {
     _nameController.text = model.name;
 
     return BackdropFilter(
-      filter: ImageFilter.blur(sigmaY: 2, sigmaX: 2),
+      filter: ImageFilter.blur(sigmaY: 10, sigmaX: 10),
       child: SimpleDialog(
         title: Text("填写昵称"),
         children: [

@@ -344,7 +344,7 @@ class _MissionPageState extends State<MissionPage> {
                         context: context,
                         builder: (context) {
                           return BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                             child: Container(
                               width: MediaQuery.of(context).size.width,
                               decoration: BoxDecoration(
@@ -511,208 +511,211 @@ class _MissionPageState extends State<MissionPage> {
               context: context,
               builder: (BuildContext context) {
                 _getClip();
-                return SimpleDialog(
-                  title: Text("添加任务"),
-                  children: [
-                    SizedBox(
-                      width: 400,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 16.0, right: 16.0),
-                      child: Container(
+                return BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: SimpleDialog(
+                    title: Text("添加任务"),
+                    children: [
+                      SizedBox(
+                        width: 400,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 16.0, right: 16.0),
+                        child: Container(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info,
+                                size: 18,
+                              ),
+                              Text("  复制任务可自动填充"),
+                            ],
+                          ),
+                          decoration: BoxDecoration(
+                            color: (Theme.of(context).colorScheme.brightness !=
+                                    Brightness.dark)
+                                ? Colors.green[100]
+                                : Colors.black26,
+                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                          ),
+                          padding: EdgeInsets.all(8.0),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: "输入任务名称",
+                            labelText: "任务名称/订阅名称",
+                          ),
+                          textInputAction: TextInputAction.next,
+                          controller: _missionNameController,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: "输入任务内容",
+                            labelText: "任务内容",
+                          ),
+                          textInputAction: TextInputAction.next,
+                          controller: _missionContentController,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: "输入任务要求",
+                            labelText: "任务要求",
+                          ),
+                          textInputAction: TextInputAction.next,
+                          controller: _missionClaimController,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          decoration: InputDecoration(
+                              hintText: "输入任务截止日期",
+                              labelText: "任务截止日期",
+                              suffix: IconButton(
+                                onPressed: () {
+                                  _selectDate(context, _missionDeadlineController,
+                                      format: true);
+                                },
+                                icon: Icon(Icons.calendar_today),
+                              )),
+                          textInputAction: TextInputAction.next,
+                          controller: _missionDeadlineController,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            hintText: "输入任务奖励",
+                            labelText: "任务奖励",
+                          ),
+                          textInputAction: TextInputAction.next,
+                          controller: _missionPayController,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            hintText: "输入问卷链接",
+                            labelText: "问卷链接",
+                          ),
+                          textInputAction: TextInputAction.done,
+                          controller: _missionUrlController,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Icon(
-                              Icons.info,
-                              size: 18,
-                            ),
-                            Text("  复制任务可自动填充"),
+                            TextButton(
+                                onPressed: () async {
+                                  if (_missionNameController.text.isEmpty) {
+                                    Fluttertoast.showToast(msg: "未填写订阅名");
+                                  } else {
+                                    Response response;
+                                    try {
+                                      response = await Dio().get(
+                                          'https://rlin1538.coding.net/api/user/rlin1538/project/cfm_subscribe/shared-depot/cfm_feedback_subscribe/git/blob/main/subscribe');
+                                      //print(response.toString());
+                                      Map<String, dynamic> jsonResp =
+                                          jsonDecode(response.toString());
+                                      // print(jsonResp["data"]["file"]
+                                      //         ["data"]
+                                      //     .toString());
+                                      List<String> subscribe = jsonResp["data"]
+                                              ["file"]["data"]
+                                          .toString()
+                                          .split('\n');
+                                      for (int i = 0; i < subscribe.length; i++) {
+                                        if (_missionNameController.text ==
+                                            subscribe[i]) {
+                                          setState(() {
+                                            subscribeURL = subscribe[i + 1];
+                                            isSubscribed = true;
+                                            subscribeTime = DateTime.now();
+                                          });
+                                          await _saveData();
+                                          await _subscribe();
+                                          Fluttertoast.showToast(
+                                              msg:
+                                                  "订阅：${_missionNameController.text}成功！");
+                                          print(subscribeURL);
+                                          break;
+                                        }
+                                        if (i == subscribe.length - 1) {
+                                          Fluttertoast.showToast(msg: "没有该订阅！");
+                                        }
+                                      }
+                                    } catch (e) {
+                                      print(e);
+                                      Fluttertoast.showToast(msg: "订阅异常！");
+                                    }
+
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                child: Text("订阅")),
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text("取消")),
+                            TextButton(
+                                onPressed: () async {
+                                  if (checkTextController()) {
+                                    Fluttertoast.showToast(msg: "有内容未填写！");
+                                  } else {
+                                    Mission m = Mission(
+                                      id: _missionNameController.text.hashCode,
+                                      name: _missionNameController.text,
+                                      content: _missionContentController.text,
+                                      pay: int.parse(_missionPayController.text),
+                                      version: model.version,
+                                      isFinished: 0,
+                                      url: _missionUrlController.text,
+                                      deadline: _missionDeadlineController.text,
+                                      claim: _missionClaimController.text,
+                                    );
+                                    if (!checkContainMission(m)) {
+                                      widget.missionController.missions.add(m);
+                                      insertMission(m);
+                                      Fluttertoast.showToast(
+                                        msg: "添加成功",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0,
+                                      );
+                                      setState(() {});
+                                    } else {
+                                      Fluttertoast.showToast(
+                                          msg: "${m.name}已存在！");
+                                    }
+
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                child: Text("确认")),
                           ],
                         ),
-                        decoration: BoxDecoration(
-                          color: (Theme.of(context).colorScheme.brightness !=
-                                  Brightness.dark)
-                              ? Colors.green[100]
-                              : Colors.black26,
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        ),
-                        padding: EdgeInsets.all(8.0),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "输入任务名称",
-                          labelText: "任务名称/订阅名称",
-                        ),
-                        textInputAction: TextInputAction.next,
-                        controller: _missionNameController,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "输入任务内容",
-                          labelText: "任务内容",
-                        ),
-                        textInputAction: TextInputAction.next,
-                        controller: _missionContentController,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "输入任务要求",
-                          labelText: "任务要求",
-                        ),
-                        textInputAction: TextInputAction.next,
-                        controller: _missionClaimController,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        decoration: InputDecoration(
-                            hintText: "输入任务截止日期",
-                            labelText: "任务截止日期",
-                            suffix: IconButton(
-                              onPressed: () {
-                                _selectDate(context, _missionDeadlineController,
-                                    format: true);
-                              },
-                              icon: Icon(Icons.calendar_today),
-                            )),
-                        textInputAction: TextInputAction.next,
-                        controller: _missionDeadlineController,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: "输入任务奖励",
-                          labelText: "任务奖励",
-                        ),
-                        textInputAction: TextInputAction.next,
-                        controller: _missionPayController,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: "输入问卷链接",
-                          labelText: "问卷链接",
-                        ),
-                        textInputAction: TextInputAction.done,
-                        controller: _missionUrlController,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                              onPressed: () async {
-                                if (_missionNameController.text.isEmpty) {
-                                  Fluttertoast.showToast(msg: "未填写订阅名");
-                                } else {
-                                  Response response;
-                                  try {
-                                    response = await Dio().get(
-                                        'https://rlin1538.coding.net/api/user/rlin1538/project/cfm_subscribe/shared-depot/cfm_feedback_subscribe/git/blob/main/subscribe');
-                                    //print(response.toString());
-                                    Map<String, dynamic> jsonResp =
-                                        jsonDecode(response.toString());
-                                    // print(jsonResp["data"]["file"]
-                                    //         ["data"]
-                                    //     .toString());
-                                    List<String> subscribe = jsonResp["data"]
-                                            ["file"]["data"]
-                                        .toString()
-                                        .split('\n');
-                                    for (int i = 0; i < subscribe.length; i++) {
-                                      if (_missionNameController.text ==
-                                          subscribe[i]) {
-                                        setState(() {
-                                          subscribeURL = subscribe[i + 1];
-                                          isSubscribed = true;
-                                          subscribeTime = DateTime.now();
-                                        });
-                                        await _saveData();
-                                        await _subscribe();
-                                        Fluttertoast.showToast(
-                                            msg:
-                                                "订阅：${_missionNameController.text}成功！");
-                                        print(subscribeURL);
-                                        break;
-                                      }
-                                      if (i == subscribe.length - 1) {
-                                        Fluttertoast.showToast(msg: "没有该订阅！");
-                                      }
-                                    }
-                                  } catch (e) {
-                                    print(e);
-                                    Fluttertoast.showToast(msg: "订阅异常！");
-                                  }
-
-                                  Navigator.pop(context);
-                                }
-                              },
-                              child: Text("订阅")),
-                          TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text("取消")),
-                          TextButton(
-                              onPressed: () async {
-                                if (checkTextController()) {
-                                  Fluttertoast.showToast(msg: "有内容未填写！");
-                                } else {
-                                  Mission m = Mission(
-                                    id: _missionNameController.text.hashCode,
-                                    name: _missionNameController.text,
-                                    content: _missionContentController.text,
-                                    pay: int.parse(_missionPayController.text),
-                                    version: model.version,
-                                    isFinished: 0,
-                                    url: _missionUrlController.text,
-                                    deadline: _missionDeadlineController.text,
-                                    claim: _missionClaimController.text,
-                                  );
-                                  if (!checkContainMission(m)) {
-                                    widget.missionController.missions.add(m);
-                                    insertMission(m);
-                                    Fluttertoast.showToast(
-                                      msg: "添加成功",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.CENTER,
-                                      timeInSecForIosWeb: 1,
-                                      backgroundColor: Colors.red,
-                                      textColor: Colors.white,
-                                      fontSize: 16.0,
-                                    );
-                                    setState(() {});
-                                  } else {
-                                    Fluttertoast.showToast(
-                                        msg: "${m.name}已存在！");
-                                  }
-
-                                  Navigator.pop(context);
-                                }
-                              },
-                              child: Text("确认")),
-                        ],
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 );
               }).then((value) => setState(() {}));
         },

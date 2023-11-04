@@ -9,7 +9,7 @@ class AppHelpDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
       child: SimpleDialog(title: Text("开始使用M组小工具"), children: [
         Padding(
           padding: const EdgeInsets.all(16.0),
