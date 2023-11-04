@@ -120,17 +120,6 @@ class _MorePageState extends State<MorePage> {
           ),
           Divider(),
           ListTile(
-            leading: Icon(Icons.help),
-            title: Text("使用手册"),
-            onTap: () {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AppHelpDialog();
-                  });
-            },
-          ),
-          ListTile(
             leading: Icon(Icons.attach_money),
             title: Text("请寒心喝可乐"),
             onTap: () async {
@@ -142,6 +131,17 @@ class _MorePageState extends State<MorePage> {
                 print(e);
                 Fluttertoast.showToast(msg: "你还没有安装支付宝");
               }
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.help),
+            title: Text("使用手册"),
+            onTap: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AppHelpDialog();
+                  });
             },
           ),
           ListTile(

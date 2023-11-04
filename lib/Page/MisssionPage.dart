@@ -26,7 +26,8 @@ class MissionPage extends StatefulWidget {
   State<MissionPage> createState() => _MissionPageState();
 }
 
-class _MissionPageState extends State<MissionPage> with SingleTickerProviderStateMixin {
+class _MissionPageState extends State<MissionPage>
+    with SingleTickerProviderStateMixin {
   //List<Mission> widget.missionController.missions = [];
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
@@ -50,41 +51,25 @@ class _MissionPageState extends State<MissionPage> with SingleTickerProviderStat
     Tab(
       icon: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.all_inclusive),
-          SizedBox(width: 10),
-          Text("全部")
-        ],
+        children: [Icon(Icons.all_inclusive), SizedBox(width: 10), Text("全部")],
       ),
     ),
     Tab(
       icon: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.sports_esports),
-          SizedBox(width: 10),
-          Text("专项")
-        ],
+        children: [Icon(Icons.sports_esports), SizedBox(width: 10), Text("专项")],
       ),
     ),
     Tab(
       icon: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.science),
-          SizedBox(width: 10),
-          Text("武器")
-        ],
+        children: [Icon(Icons.science), SizedBox(width: 10), Text("武器")],
       ),
     ),
     Tab(
       icon: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.feed),
-          SizedBox(width: 10),
-          Text("其他")
-        ],
+        children: [Icon(Icons.feed), SizedBox(width: 10), Text("其他")],
       ),
     ),
   ];
@@ -127,27 +112,28 @@ class _MissionPageState extends State<MissionPage> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: tabs.length, vsync: this)..addListener(() {
-      if (tabController.index.toDouble() == tabController.animation?.value)
-        switch (tabController.index) {
-          case 0:
-            print("全部");
-            widget.missionController.setMissionFilter("");
-            break;
-          case 1:
-            print("专项");
-            widget.missionController.setMissionFilter("专项");
-            break;
-          case 2:
-            print("武器");
-            widget.missionController.setMissionFilter("武器");
-            break;
-          case 3:
-            print("其他");
-            widget.missionController.setMissionFilter("常规");
-            break;
-        }
-    });
+    tabController = TabController(length: tabs.length, vsync: this)
+      ..addListener(() {
+        if (tabController.index.toDouble() == tabController.animation?.value)
+          switch (tabController.index) {
+            case 0:
+              print("全部");
+              widget.missionController.setMissionFilter("");
+              break;
+            case 1:
+              print("专项");
+              widget.missionController.setMissionFilter("专项");
+              break;
+            case 2:
+              print("武器");
+              widget.missionController.setMissionFilter("武器");
+              break;
+            case 3:
+              print("其他");
+              widget.missionController.setMissionFilter("其他");
+              break;
+          }
+      });
   }
 
   @override
@@ -174,22 +160,22 @@ class _MissionPageState extends State<MissionPage> with SingleTickerProviderStat
                   return SimpleDialog(
                     children: model.versions
                         .map((e) => InkWell(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          e,
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ),
-                      onTap: () async {
-                        model.version = e;
-                        //widget.missionController.missions = await getwidget.missionController.missions(model.version);
-                        widget.missionController.loadData(model);
-                        _saveData();
-                        setState(() {});
-                        Navigator.pop(context);
-                      },
-                    ))
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  e,
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ),
+                              onTap: () async {
+                                model.version = e;
+                                //widget.missionController.missions = await getwidget.missionController.missions(model.version);
+                                widget.missionController.loadData(model);
+                                _saveData();
+                                setState(() {});
+                                Navigator.pop(context);
+                              },
+                            ))
                         .toList(),
                   );
                 });
@@ -239,317 +225,318 @@ class _MissionPageState extends State<MissionPage> with SingleTickerProviderStat
             visible: isSubscribed,
           ),
         ],
-        bottom: TabBar(tabs: tabs, controller: tabController,),
+        bottom: TabBar(
+          tabs: tabs,
+          controller: tabController,
+        ),
       ),
       body: RefreshIndicator(
-          onRefresh: () async {
-            //widget.missionController.missions = await getwidget.missionController.missions(model.version);
-            widget.missionController.loadData(model);
-            setState(() {});
-          },
-          child: Scrollbar(
-            child: ListView.builder(
-              itemCount: widget.missionController.missions.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Dismissible(
-                  key: ValueKey(widget.missionController.missions[index].name),
-                  background: Container(
-                    padding: EdgeInsets.only(right: 20.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.delete,
-                              size: 32,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    color: Colors.red[300],
+        onRefresh: () async {
+          //widget.missionController.missions = await getwidget.missionController.missions(model.version);
+          widget.missionController.loadData(model);
+          setState(() {});
+        },
+        child: Scrollbar(
+          child: ListView.builder(
+            itemCount: widget.missionController.missions.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Dismissible(
+                key: ValueKey(widget.missionController.missions[index].name),
+                background: Container(
+                  padding: EdgeInsets.only(right: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.delete,
+                            size: 32,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  direction: DismissDirection.endToStart,
-                  dismissThresholds: {DismissDirection.endToStart: 0.2},
-                  confirmDismiss: (d) async {
-                    return await showDialog<bool>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text("删除任务"),
-                            content: Text("是否要删除该任务？"),
-                            actions: [
-                              TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(false),
-                                  child: Text("取消")),
-                              TextButton(
-                                  onPressed: () async {
-                                    Navigator.of(context).pop(true);
-                                  },
-                                  child: Text("确认")),
-                            ],
-                          );
-                        });
-                    //return false;
-                  },
-                  onDismissed: (d) {
-                    print("onDismissed");
-                    setState(() {
-                      deleteMission(
-                          widget.missionController.missions[index].id);
-                      widget.missionController.allMission.removeWhere((element) => element.id == widget.missionController.missions[index].id);
-                    });
-                    // setState(() {
-                    //   widget.missionController.missions[index].isFinished = !widget.missionController.missions[index].isFinished;
-                    // });
-                    // ScaffoldMessenger.of(context)
-                    //     .showSnackBar(SnackBar(content: Text('${widget.missionController.missions[index].name} dismissed')));
-                  },
-                  child: Card(
-                    elevation: 1.0,
-                    margin: EdgeInsets.only(left: 16.0, right: 16.0, top: 4.0,bottom: 4.0),
+                  color: Colors.red[300],
+                ),
+                direction: DismissDirection.endToStart,
+                dismissThresholds: {DismissDirection.endToStart: 0.2},
+                confirmDismiss: (d) async {
+                  return await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("删除任务"),
+                          content: Text("是否要删除该任务？"),
+                          actions: [
+                            TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: Text("取消")),
+                            TextButton(
+                                onPressed: () async {
+                                  Navigator.of(context).pop(true);
+                                },
+                                child: Text("确认")),
+                          ],
+                        );
+                      });
+                  //return false;
+                },
+                onDismissed: (d) {
+                  print("onDismissed");
+                  setState(() {
+                    deleteMission(widget.missionController.missions[index].id);
+                    widget.missionController.allMission.removeWhere((element) =>
+                        element.id ==
+                        widget.missionController.missions[index].id);
+                  });
+                  // setState(() {
+                  //   widget.missionController.missions[index].isFinished = !widget.missionController.missions[index].isFinished;
+                  // });
+                  // ScaffoldMessenger.of(context)
+                  //     .showSnackBar(SnackBar(content: Text('${widget.missionController.missions[index].name} dismissed')));
+                },
+                child: Card(
+                  elevation: 1.0,
+                  margin: EdgeInsets.only(
+                      left: 16.0, right: 16.0, top: 4.0, bottom: 4.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  ),
+                  child: ListTile(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20.0)),
                     ),
-                    child: ListTile(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    leading: CircleAvatar(
+                      backgroundColor: getAvatarColor(
+                        widget.missionController.missions[index].content
+                            .substring(0, 2),
                       ),
-                      leading: CircleAvatar(
-                        backgroundColor: getAvatarColor(
+                      child: Text(
                           widget.missionController.missions[index].content
                               .substring(0, 2),
-                        ),
-                        child: Text(
-                            widget.missionController.missions[index].content
-                                .substring(0, 2),
-                            style: TextStyle(color: Colors.black87)),
-                      ),
-                      trailing: IconButton(
-                        icon: _getFinishStatus(widget
-                            .missionController.missions[index].isFinished),
-                        onPressed: () async {
-                          setState(() {
-                            if (widget.missionController.missions[index]
-                                    .isFinished ==
-                                1) {
-                              widget.missionController.missions[index]
-                                  .isFinished = 0;
-                            } else {
-                              widget.missionController.missions[index]
-                                  .isFinished = 1;
-                            }
-                          });
-                          await updateMission(
-                              widget.missionController.missions[index]);
-                        },
-                      ),
-                      title:
-                          Text(widget.missionController.missions[index].name),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.timer_outlined,
-                                size: 16,
-                              ),
-                              Text(
-                                  widget.missionController.missions[index]
-                                      .deadline,
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              VerticalDivider(),
-                              Icon(
-                                Icons.monetization_on_outlined,
-                                size: 16,
-                              ),
-                              Text(
-                                widget.missionController.missions[index].pay
-                                    .toString(),
-                                style: TextStyle(
-                                    fontStyle: FontStyle.italic,
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          ),
-                          Text(
-                              widget.missionController.missions[index].content),
-                        ],
-                      ),
-                      onTap: () {
-                        showModalBottomSheet(
-                          isScrollControlled: true,
-                          context: context,
-                          builder: (context) {
-                            return BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                              child: Container(
-                                width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor,
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(20),
-                                  ),
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                        width: 70,
-                                        height: 6,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black12,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(20)),
-                                        ),
-                                      ),
-                                    ),
-                                    ListTile(
-                                      title: Text("任务名称"),
-                                      subtitle: Text(widget.missionController
-                                          .missions[index].name),
-                                    ),
-                                    ListTile(
-                                      title: Text("任务内容"),
-                                      subtitle: Text(widget.missionController
-                                          .missions[index].content),
-                                    ),
-                                    ListTile(
-                                      title: Text("任务要求"),
-                                      subtitle: Text(widget.missionController
-                                          .missions[index].claim),
-                                    ),
-                                    ListTile(
-                                      title: Text("任务奖励"),
-                                      subtitle: Text(widget
-                                          .missionController.missions[index].pay
-                                          .toString()),
-                                    ),
-                                    ListTile(
-                                      title: Text("截止日期"),
-                                      subtitle: Text(widget.missionController
-                                          .missions[index].deadline),
-                                    ),
-                                    ListTile(
-                                      title: Text("问卷链接"),
-                                      subtitle: Text(
-                                        widget.missionController.missions[index]
-                                            .url,
-                                        style: TextStyle(color: Colors.blue),
-                                      ),
-                                      onTap: () {
-                                        Uri url = Uri.parse(widget
-                                            .missionController
-                                            .missions[index]
-                                            .url);
-                                        launchUrl(url);
-                                      },
-                                    ),
-                                    Divider(
-                                      indent: 16,
-                                      endIndent: 16,
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 8.0),
-                                      child: Text("任务内容，禁止外泄",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontStyle: FontStyle.italic)),
-                                    ),
-                                    // Row(
-                                    //   children: [
-                                    //     Expanded(
-                                    //       child: Padding(
-                                    //         padding: const EdgeInsets.all(8.0),
-                                    //         child: OutlinedButton(
-                                    //           onPressed: () async {
-                                    //             if (model.name == "" ||(model.name ==
-                                    //                 "M【监测】")) {
-                                    //               Fluttertoast.showToast(
-                                    //                   msg: "请在更多页面填写群昵称！");
-                                    //             } else {
-                                    //               // await _getImage(
-                                    //               //     index, context);
-                                    //               Fluttertoast.showToast(
-                                    //                   msg: "该接口已弃用");
-                                    //             }
-                                    //           },
-                                    //           child: Text("查看图片"),
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //     Expanded(
-                                    //       child: Padding(
-                                    //         padding: const EdgeInsets.all(8.0),
-                                    //         child: OutlinedButton(
-                                    //           onPressed: () async {
-                                    //             if (_nameValueController.text ==
-                                    //                 "M【监测】") {
-                                    //               Fluttertoast.showToast(
-                                    //                   msg: "请在反馈文本页面填写群昵称！");
-                                    //             } else {
-                                    //               // await _uploadImage(
-                                    //               //     context, index);
-                                    //               Fluttertoast.showToast(
-                                    //                   msg: "此接口已弃用");
-                                    //             }
-                                    //           },
-                                    //           child: Text("上传截图"),
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //   ],
-                                    // ),
-                                    // Padding(
-                                    //   padding: const EdgeInsets.all(8.0),
-                                    //   child: Row(
-                                    //     mainAxisAlignment:
-                                    //     MainAxisAlignment.center,
-                                    //     children: [Text("截图上传测试中，不保证稳定性")],
-                                    //   ),
-                                    // )
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                      onLongPress: () async {
+                          style: TextStyle(color: Colors.black87)),
+                    ),
+                    trailing: IconButton(
+                      icon: _getFinishStatus(
+                          widget.missionController.missions[index].isFinished),
+                      onPressed: () async {
                         setState(() {
                           if (widget.missionController.missions[index]
                                   .isFinished ==
-                              2) {
+                              1) {
                             widget.missionController.missions[index]
                                 .isFinished = 0;
                           } else {
                             widget.missionController.missions[index]
-                                .isFinished = 2;
+                                .isFinished = 1;
                           }
                         });
-                        widget.missionController.notifyMissionChange();
                         await updateMission(
                             widget.missionController.missions[index]);
                       },
                     ),
+                    title: Text(widget.missionController.missions[index].name),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.timer_outlined,
+                              size: 16,
+                            ),
+                            Text(
+                                widget
+                                    .missionController.missions[index].deadline,
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            VerticalDivider(),
+                            Icon(
+                              Icons.monetization_on_outlined,
+                              size: 16,
+                            ),
+                            Text(
+                              widget.missionController.missions[index].pay
+                                  .toString(),
+                              style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        ),
+                        Text(widget.missionController.missions[index].content),
+                      ],
+                    ),
+                    onTap: () {
+                      showModalBottomSheet(
+                        isScrollControlled: true,
+                        context: context,
+                        builder: (context) {
+                          return BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20),
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      width: 70,
+                                      height: 6,
+                                      decoration: BoxDecoration(
+                                        color: Colors.black12,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(20)),
+                                      ),
+                                    ),
+                                  ),
+                                  ListTile(
+                                    title: Text("任务名称"),
+                                    subtitle: Text(widget.missionController
+                                        .missions[index].name),
+                                  ),
+                                  ListTile(
+                                    title: Text("任务内容"),
+                                    subtitle: Text(widget.missionController
+                                        .missions[index].content),
+                                  ),
+                                  ListTile(
+                                    title: Text("任务要求"),
+                                    subtitle: Text(widget.missionController
+                                        .missions[index].claim),
+                                  ),
+                                  ListTile(
+                                    title: Text("任务奖励"),
+                                    subtitle: Text(widget
+                                        .missionController.missions[index].pay
+                                        .toString()),
+                                  ),
+                                  ListTile(
+                                    title: Text("截止日期"),
+                                    subtitle: Text(widget.missionController
+                                        .missions[index].deadline),
+                                  ),
+                                  ListTile(
+                                    title: Text("问卷链接"),
+                                    subtitle: Text(
+                                      widget.missionController.missions[index]
+                                          .url,
+                                      style: TextStyle(color: Colors.blue),
+                                    ),
+                                    onTap: () {
+                                      Uri url = Uri.parse(widget
+                                          .missionController
+                                          .missions[index]
+                                          .url);
+                                      launchUrl(url);
+                                    },
+                                  ),
+                                  Divider(
+                                    indent: 16,
+                                    endIndent: 16,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    child: Text("任务内容，禁止外泄",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontStyle: FontStyle.italic)),
+                                  ),
+                                  // Row(
+                                  //   children: [
+                                  //     Expanded(
+                                  //       child: Padding(
+                                  //         padding: const EdgeInsets.all(8.0),
+                                  //         child: OutlinedButton(
+                                  //           onPressed: () async {
+                                  //             if (model.name == "" ||(model.name ==
+                                  //                 "M【监测】")) {
+                                  //               Fluttertoast.showToast(
+                                  //                   msg: "请在更多页面填写群昵称！");
+                                  //             } else {
+                                  //               // await _getImage(
+                                  //               //     index, context);
+                                  //               Fluttertoast.showToast(
+                                  //                   msg: "该接口已弃用");
+                                  //             }
+                                  //           },
+                                  //           child: Text("查看图片"),
+                                  //         ),
+                                  //       ),
+                                  //     ),
+                                  //     Expanded(
+                                  //       child: Padding(
+                                  //         padding: const EdgeInsets.all(8.0),
+                                  //         child: OutlinedButton(
+                                  //           onPressed: () async {
+                                  //             if (_nameValueController.text ==
+                                  //                 "M【监测】") {
+                                  //               Fluttertoast.showToast(
+                                  //                   msg: "请在反馈文本页面填写群昵称！");
+                                  //             } else {
+                                  //               // await _uploadImage(
+                                  //               //     context, index);
+                                  //               Fluttertoast.showToast(
+                                  //                   msg: "此接口已弃用");
+                                  //             }
+                                  //           },
+                                  //           child: Text("上传截图"),
+                                  //         ),
+                                  //       ),
+                                  //     ),
+                                  //   ],
+                                  // ),
+                                  // Padding(
+                                  //   padding: const EdgeInsets.all(8.0),
+                                  //   child: Row(
+                                  //     mainAxisAlignment:
+                                  //     MainAxisAlignment.center,
+                                  //     children: [Text("截图上传测试中，不保证稳定性")],
+                                  //   ),
+                                  // )
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    onLongPress: () async {
+                      setState(() {
+                        if (widget
+                                .missionController.missions[index].isFinished ==
+                            2) {
+                          widget.missionController.missions[index].isFinished =
+                              0;
+                        } else {
+                          widget.missionController.missions[index].isFinished =
+                              2;
+                        }
+                      });
+                      widget.missionController.notifyMissionChange();
+                      await updateMission(
+                          widget.missionController.missions[index]);
+                    },
                   ),
-                );
-              },
-              // separatorBuilder: (BuildContext context, int index) => ,
-            ),
+                ),
+              );
+            },
+            // separatorBuilder: (BuildContext context, int index) => ,
           ),
         ),
+      ),
       floatingActionButton: Align(
         heightFactor: 2,
-        alignment: Alignment(1,0),
+        alignment: Alignment(1, 0),
         child: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () async {
@@ -578,10 +565,11 @@ class _MissionPageState extends State<MissionPage> with SingleTickerProviderStat
                               ],
                             ),
                             decoration: BoxDecoration(
-                              color: (Theme.of(context).colorScheme.brightness !=
-                                      Brightness.dark)
-                                  ? Theme.of(context).colorScheme.surface
-                                  : Colors.black26,
+                              color:
+                                  (Theme.of(context).colorScheme.brightness !=
+                                          Brightness.dark)
+                                      ? Theme.of(context).colorScheme.surface
+                                      : Colors.black26,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(8.0)),
                             ),
@@ -683,10 +671,10 @@ class _MissionPageState extends State<MissionPage> with SingleTickerProviderStat
                                         // print(jsonResp["data"]["file"]
                                         //         ["data"]
                                         //     .toString());
-                                        List<String> subscribe = jsonResp["data"]
-                                                ["file"]["data"]
-                                            .toString()
-                                            .split('\n');
+                                        List<String> subscribe =
+                                            jsonResp["data"]["file"]["data"]
+                                                .toString()
+                                                .split('\n');
                                         for (int i = 0;
                                             i < subscribe.length;
                                             i++) {
@@ -706,7 +694,8 @@ class _MissionPageState extends State<MissionPage> with SingleTickerProviderStat
                                             break;
                                           }
                                           if (i == subscribe.length - 1) {
-                                            Fluttertoast.showToast(msg: "没有该订阅！");
+                                            Fluttertoast.showToast(
+                                                msg: "没有该订阅！");
                                           }
                                         }
                                       } catch (e) {
@@ -729,19 +718,24 @@ class _MissionPageState extends State<MissionPage> with SingleTickerProviderStat
                                       Fluttertoast.showToast(msg: "有内容未填写！");
                                     } else {
                                       Mission m = Mission(
-                                        id: _missionNameController.text.hashCode,
+                                        id: _missionNameController
+                                            .text.hashCode,
                                         name: _missionNameController.text,
                                         content: _missionContentController.text,
-                                        pay:
-                                            int.parse(_missionPayController.text),
+                                        pay: int.parse(
+                                            _missionPayController.text),
                                         version: model.version,
                                         isFinished: 0,
                                         url: _missionUrlController.text,
-                                        deadline: _missionDeadlineController.text,
+                                        deadline:
+                                            _missionDeadlineController.text,
                                         claim: _missionClaimController.text,
                                       );
                                       if (!checkContainMission(m)) {
-                                        widget.missionController.missions.add(m);
+                                        widget.missionController.allMission
+                                            .add(m);
+                                        widget.missionController
+                                            .notifyMissionChange();
                                         insertMission(m);
                                         Fluttertoast.showToast(
                                           msg: "添加成功",

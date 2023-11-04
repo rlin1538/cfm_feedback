@@ -26,10 +26,14 @@ class AppHelpDialog extends StatelessWidget {
                   Text("4. 统计信息\n\t\t切换到统计数据页面查看统计信息，需要先在更多功能页面填写昵称\n"),
                 ],
               ),
-              Text(
-                "本软件及内容为内部人员自用，禁止外传\n",
-                style: TextStyle(color: Colors.red),
+              // Divider(indent: 8,endIndent: 8,height: 0,),
+              Center(
+                child: Text(
+                  "本软件及内容为内部人员自用，禁止外传\n",
+                  style: TextStyle(color: Colors.red),
+                ),
               ),
+              Divider(indent: 4,endIndent: 4,),
               Text(
                 "By M寒心",
                 style: GoogleFonts.zhiMangXing(

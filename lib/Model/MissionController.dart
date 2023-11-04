@@ -12,7 +12,9 @@ class MissionController extends ChangeNotifier {
     if (filter.isEmpty) {
       return _missions;
     } else {
-      return _missions.where((element) => element.content.startsWith(filter)).toList();
+      return _missions
+          .where((element) => element.content.startsWith(filter))
+          .toList();
     }
   }
 
