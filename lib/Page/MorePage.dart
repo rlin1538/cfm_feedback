@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:saf/saf.dart';
 
+import '../Widgets/HelpDialog.dart';
 import 'JoyBackupPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -118,6 +119,17 @@ class _MorePageState extends State<MorePage> {
             },
           ),
           Divider(),
+          ListTile(
+            leading: Icon(Icons.help),
+            title: Text("使用手册"),
+            onTap: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AppHelpDialog();
+                  });
+            },
+          ),
           ListTile(
             leading: Icon(Icons.attach_money),
             title: Text("请寒心喝可乐"),
