@@ -7,6 +7,9 @@ on:
   # 当代码被推送到任意分支时，或者有新的Pull Request时，触发工作流
   push:
     branches: [ master ]
+    
+    tags:
+      - 'v*'
   pull_request:
     branches: [ master ]
 
