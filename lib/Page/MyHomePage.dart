@@ -54,6 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             bottomNavigationBar: NavigationBar(
+              elevation: 6.0,
               selectedIndex: currentIndex,
               onDestinationSelected: (index) => setState(() {
                 currentIndex = index;

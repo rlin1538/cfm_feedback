@@ -23,7 +23,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<VersionModel>();
-    missions = widget.missionController.missions;
+    missions = widget.missionController.allMission;
     // _loadData(model);
     return Scaffold(
       appBar: AppBar(

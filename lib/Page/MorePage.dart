@@ -151,7 +151,7 @@ class _MorePageState extends State<MorePage> {
               showAboutDialog(
                 context: context,
                 applicationName: "M组小工具",
-                applicationVersion: "3.0.0",
+                applicationVersion: "3.1.0",
                 applicationLegalese: "@Rlin",
                 applicationIcon: Image.asset(
                   "assets/cf_icon.png",
