@@ -352,6 +352,7 @@ class _MissionPageState extends State<MissionPage>
                 ),
                 badgeContent: Text(
                   "${widget.missionController.allMission.where((element) => element.isFinished == 0).length}",
+                  style: TextStyle(color: Colors.white, fontSize: 12),
                 ),
                 position: badges.BadgePosition.topEnd(top: -10, end: -16),
                 badgeAnimation: badges.BadgeAnimation.scale(),
@@ -370,6 +371,7 @@ class _MissionPageState extends State<MissionPage>
                 ),
                 badgeContent: Text(
                   "${widget.missionController.allMission.where((element) => element.isFinished == 0 && element.content.startsWith("专项")).length}",
+                  style: TextStyle(color: Colors.white, fontSize: 12),
                 ),
                 position: badges.BadgePosition.topEnd(top: -10, end: -16),
                 badgeAnimation: badges.BadgeAnimation.scale(),
@@ -388,6 +390,7 @@ class _MissionPageState extends State<MissionPage>
                 ),
                 badgeContent: Text(
                   "${widget.missionController.allMission.where((element) => element.isFinished == 0 && element.content.startsWith("武器")).length}",
+                  style: TextStyle(color: Colors.white, fontSize: 12),
                 ),
                 position: badges.BadgePosition.topEnd(top: -10, end: -16),
                 badgeAnimation: badges.BadgeAnimation.scale(),
@@ -402,6 +405,7 @@ class _MissionPageState extends State<MissionPage>
                 ),
                 badgeContent: Text(
                   "${widget.missionController.allMission.where((element) => element.isFinished == 0 && element.content.startsWith("其他")).length}",
+                  style: TextStyle(color: Colors.white, fontSize: 12),
                 ),
                 position: badges.BadgePosition.topEnd(top: -10),
                 badgeAnimation: badges.BadgeAnimation.scale(),
