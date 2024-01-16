@@ -9,4 +9,8 @@ class SPUtils {
     var prefs = await SharedPreferences.getInstance();
     prefs.setStringList(key, value);
   }
+  static saveBoolToSP(String key, bool value) async {
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setBool(key, value);
+  }
 }

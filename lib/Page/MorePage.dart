@@ -72,15 +72,12 @@ class _MorePageState extends State<MorePage> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.casino),
-            title: Text("赛事信息"),
-            subtitle: Text("查看战队详细信息，竞猜情况（等待施工）"),
+            leading: Icon(Icons.screen_search_desktop_rounded),
+            title: Text("CFM自助工具"),
+            subtitle: Text("查询道具流水、登陆流水、邮件流水等"),
             onTap: () {
-              Fluttertoast.showToast(msg: "暂未完成");
-              // Navigator.push(context,
-              //     MaterialPageRoute(builder: (BuildContext context) {
-              //       return JoyBackupPage();
-              //     }));
+              Uri url = Uri.parse("https://act.gbot.qq.com/gbot/act/a5e1d4e6f03094f5596b0dbe53fc1dd10/index.html");
+              launchUrl(url);
             },
           ),
           ListTile(
@@ -94,13 +91,36 @@ class _MorePageState extends State<MorePage> {
               }));
             },
           ),
+          ListTile(
+            leading: Icon(Icons.casino),
+            title: Text("赛事信息"),
+            subtitle: Text("查看战队详细信息，竞猜情况（等待施工）"),
+            onTap: () {
+              Fluttertoast.showToast(msg: "暂未完成");
+              // Navigator.push(context,
+              //     MaterialPageRoute(builder: (BuildContext context) {
+              //       return JoyBackupPage();
+              //     }));
+            },
+          ),
           Divider(),
           ListTile(
             leading: Icon(Icons.notifications),
-            title: Text("未完成任务通知(待实现)"),
+            title: Text("未完成任务角标"),
             trailing: Switch(
               onChanged: (bool value) {},
               value: false,
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.flag),
+            title: Text("过期任务自动标记未完成"),
+            trailing: Switch(
+              onChanged: (bool value) {
+                print("更改过期任务自动标记功能：$value");
+                model.autoUnFinished = value;
+              },
+              value: model.autoUnFinished,
             ),
           ),
           ListTile(
@@ -151,7 +171,7 @@ class _MorePageState extends State<MorePage> {
               showAboutDialog(
                 context: context,
                 applicationName: "M组小工具",
-                applicationVersion: "3.1.0",
+                applicationVersion: "3.2.0",
                 applicationLegalese: "@Rlin",
                 applicationIcon: Image.asset(
                   "assets/cf_icon.png",

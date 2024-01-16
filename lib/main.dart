@@ -76,6 +76,7 @@ class _MyAppState extends State<MyApp> {
             supportedLocales: [
               const Locale('zh', 'CN'),
             ],
+            debugShowCheckedModeBanner: false,
           );
         },
       ),
@@ -89,7 +90,7 @@ getData() async {
 
   // 初始化模型
   Globals.cfmerModel = CfmerModel(Globals.prefs.getString("Name"),
-      Globals.prefs.getString("QQ"), Globals.prefs.getString("Phone"));
+      Globals.prefs.getString("QQ"), Globals.prefs.getString("Phone"), Globals.prefs.getBool("AutoUnFinished"));
   var version = Globals.prefs.getString("Version").toString();
   List<String> versions = [];
   if (Globals.prefs.getStringList("Versions") != null) {

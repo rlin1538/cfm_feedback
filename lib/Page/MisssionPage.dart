@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:ui';
 
+import 'package:cfm_feedback/Model/CfmerModel.dart';
 import 'package:cfm_feedback/Model/MissionController.dart';
 import 'package:cfm_feedback/Model/VersionModel.dart';
 import 'package:dio/dio.dart';
@@ -13,6 +14,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:badges/badges.dart' as badges;
 
 import '../Common/Mission.dart';
 import '../Utils/DbUtils.dart';
@@ -47,32 +49,6 @@ class _MissionPageState extends State<MissionPage>
   var _missionDeadlineController = TextEditingController();
   var _missionUrlController = TextEditingController();
 
-  final tabs = [
-    Tab(
-      icon: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [Icon(Icons.all_inclusive), SizedBox(width: 10), Text("全部")],
-      ),
-    ),
-    Tab(
-      icon: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [Icon(Icons.sports_esports), SizedBox(width: 10), Text("专项")],
-      ),
-    ),
-    Tab(
-      icon: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [Icon(Icons.science), SizedBox(width: 10), Text("武器")],
-      ),
-    ),
-    Tab(
-      icon: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [Icon(Icons.feed), SizedBox(width: 10), Text("其他")],
-      ),
-    ),
-  ];
   late TabController tabController;
 
   Future<Null> _selectDate(
@@ -112,7 +88,9 @@ class _MissionPageState extends State<MissionPage>
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: tabs.length, vsync: this)
+    model = Provider.of<VersionModel>(context, listen: false);
+    _loadData(model);
+    tabController = TabController(length: 4, vsync: this)
       ..addListener(() {
         if (tabController.index.toDouble() == tabController.animation?.value)
           switch (tabController.index) {
@@ -138,9 +116,7 @@ class _MissionPageState extends State<MissionPage>
 
   @override
   Widget build(BuildContext context) {
-    model = context.watch<VersionModel>();
-    _loadData(model);
-    Timer(Duration(seconds: 1), () => setState(() {}));
+    Timer(Duration(seconds: 1, milliseconds: 500), () => setState(() {}));
 
     return Scaffold(
       appBar: AppBar(
@@ -204,29 +180,235 @@ class _MissionPageState extends State<MissionPage>
         ),
         centerTitle: true,
         actions: [
-          Visibility(
-            child: IconButton(
-              tooltip: "更新订阅",
-              onPressed: () async {
-                Fluttertoast.showToast(msg: "更新订阅中...");
-                _printAllMission();
-                try {
-                  int count = await _subscribe();
-                  Fluttertoast.showToast(msg: "更新了$count条任务");
-                  //widget.missionController.missions = await getwidget.missionController.missions(model.version);
-                  widget.missionController.loadData(model);
-                  setState(() {});
-                } catch (e) {
-                  Fluttertoast.showToast(msg: "订阅异常");
-                }
-              },
-              icon: Icon(Icons.cloud_download),
-            ),
-            visible: isSubscribed,
-          ),
+          PopupMenuButton(itemBuilder: (BuildContext context) {
+            return [
+              PopupMenuItem(
+                child: Text("添加订阅"),
+                onTap: () {
+                  print("添加订阅");
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        _getClip();
+                        return BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: SimpleDialog(
+                            title: Text("添加订阅"),
+                            children: [
+                              SizedBox(
+                                width: 400,
+                              ),
+                              Padding(
+                                padding:
+                                    EdgeInsets.only(left: 16.0, right: 16.0),
+                                child: Container(
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.info,
+                                        size: 18,
+                                      ),
+                                      Text("  订阅名在M组通知群中发布"),
+                                    ],
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: (Theme.of(context)
+                                                .colorScheme
+                                                .brightness !=
+                                            Brightness.dark)
+                                        ? Theme.of(context).colorScheme.surface
+                                        : Colors.black26,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0)),
+                                  ),
+                                  padding: EdgeInsets.all(8.0),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: TextField(
+                                  decoration: InputDecoration(
+                                    hintText: "输入订阅名称",
+                                    labelText: "订阅名称",
+                                  ),
+                                  textInputAction: TextInputAction.next,
+                                  controller: _missionNameController,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("取消")),
+                                    TextButton(
+                                        onPressed: () async {
+                                          if (_missionNameController
+                                              .text.isEmpty) {
+                                            Fluttertoast.showToast(
+                                                msg: "未填写订阅名");
+                                          } else {
+                                            Response response;
+                                            try {
+                                              response = await Dio().get(
+                                                  'https://rlin1538.coding.net/api/user/rlin1538/project/cfm_subscribe/shared-depot/cfm_feedback_subscribe/git/blob/main/subscribe');
+                                              //print(response.toString());
+                                              Map<String, dynamic> jsonResp =
+                                                  jsonDecode(
+                                                      response.toString());
+                                              // print(jsonResp["data"]["file"]
+                                              //         ["data"]
+                                              //     .toString());
+                                              List<String> subscribe =
+                                                  jsonResp["data"]["file"]
+                                                          ["data"]
+                                                      .toString()
+                                                      .split('\n');
+                                              for (int i = 0;
+                                                  i < subscribe.length;
+                                                  i++) {
+                                                if (_missionNameController
+                                                        .text ==
+                                                    subscribe[i]) {
+                                                  setState(() {
+                                                    subscribeURL =
+                                                        subscribe[i + 1];
+                                                    isSubscribed = true;
+                                                    subscribeTime =
+                                                        DateTime.now();
+                                                  });
+                                                  await _saveData();
+                                                  await _subscribe();
+                                                  Fluttertoast.showToast(
+                                                      msg:
+                                                          "订阅：${_missionNameController.text}成功！");
+                                                  print(subscribeURL);
+                                                  break;
+                                                }
+                                                if (i == subscribe.length - 1) {
+                                                  Fluttertoast.showToast(
+                                                      msg: "没有该订阅！");
+                                                }
+                                              }
+                                            } catch (e) {
+                                              print(e);
+                                              Fluttertoast.showToast(
+                                                  msg: "订阅异常，请联系寒心！");
+                                            }
+
+                                            Navigator.pop(context);
+                                          }
+                                        },
+                                        child: Text("订阅")),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      });
+                },
+                value: "Subscribe",
+              ),
+              PopupMenuItem(
+                child: Text("更新订阅"),
+                onTap: () async {
+                  if (isSubscribed) {
+                    Fluttertoast.showToast(msg: "更新订阅中...");
+                    _printAllMission();
+                    try {
+                      int count = await _subscribe();
+                      Fluttertoast.showToast(msg: "更新了$count条任务");
+                      //widget.missionController.missions = await getwidget.missionController.missions(model.version);
+                      widget.missionController.loadData(model);
+                      setState(() {});
+                    } catch (e) {
+                      Fluttertoast.showToast(msg: "订阅异常，请联系寒心");
+                    }
+                  } else {
+                    Fluttertoast.showToast(msg: "你还没有添加订阅！");
+                  }
+                },
+                value: "Refresh",
+              )
+            ];
+          }),
         ],
         bottom: TabBar(
-          tabs: tabs,
+          tabs: [
+            Tab(
+              icon: badges.Badge(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.all_inclusive),
+                    SizedBox(width: 10),
+                    Text("全部")
+                  ],
+                ),
+                badgeContent: Text(
+                  "${widget.missionController.allMission.where((element) => element.isFinished == 0).length}",
+                ),
+                position: badges.BadgePosition.topEnd(top: -10, end: -16),
+                badgeAnimation: badges.BadgeAnimation.scale(),
+                showBadge: widget.missionController.allMission.where((element) => element.isFinished == 0).length != 0,
+              ),
+            ),
+            Tab(
+              icon: badges.Badge(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.sports_esports),
+                    SizedBox(width: 10),
+                    Text("专项")
+                  ],
+                ),
+                badgeContent: Text(
+                  "${widget.missionController.allMission.where((element) => element.isFinished == 0 && element.content.startsWith("专项")).length}",
+                ),
+                position: badges.BadgePosition.topEnd(top: -10, end: -16),
+                badgeAnimation: badges.BadgeAnimation.scale(),
+                showBadge: widget.missionController.allMission.where((element) => element.isFinished == 0 && element.content.startsWith("专项")).length != 0,
+              ),
+            ),
+            Tab(
+              icon: badges.Badge(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.science),
+                    SizedBox(width: 10),
+                    Text("武器")
+                  ],
+                ),
+                badgeContent: Text(
+                  "${widget.missionController.allMission.where((element) => element.isFinished == 0 && element.content.startsWith("武器")).length}",
+                ),
+                position: badges.BadgePosition.topEnd(top: -10, end: -16),
+                badgeAnimation: badges.BadgeAnimation.scale(),
+                showBadge: widget.missionController.allMission.where((element) => element.isFinished == 0 && element.content.startsWith("武器")).length != 0,
+              ),
+            ),
+            Tab(
+              icon: badges.Badge(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [Icon(Icons.feed), SizedBox(width: 10), Text("其他")],
+                ),
+                badgeContent: Text(
+                  "${widget.missionController.allMission.where((element) => element.isFinished == 0 && element.content.startsWith("其他")).length}",
+                ),
+                position: badges.BadgePosition.topEnd(top: -10),
+                badgeAnimation: badges.BadgeAnimation.scale(),
+                showBadge: widget.missionController.allMission.where((element) => element.isFinished == 0 && element.content.startsWith("其他")).length != 0,
+              ),
+            ),
+          ],
           controller: tabController,
         ),
       ),
@@ -336,6 +518,7 @@ class _MissionPageState extends State<MissionPage>
                         });
                         await updateMission(
                             widget.missionController.missions[index]);
+                        widget.missionController.notifyMissionChange();
                       },
                     ),
                     title: Text(widget.missionController.missions[index].name),
@@ -525,6 +708,7 @@ class _MissionPageState extends State<MissionPage>
                       widget.missionController.notifyMissionChange();
                       await updateMission(
                           widget.missionController.missions[index]);
+                      widget.missionController.notifyMissionChange();
                     },
                   ),
                 ),
@@ -581,7 +765,7 @@ class _MissionPageState extends State<MissionPage>
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: "输入任务名称",
-                              labelText: "任务名称/订阅名称",
+                              labelText: "任务名称名称",
                             ),
                             textInputAction: TextInputAction.next,
                             controller: _missionNameController,
@@ -656,57 +840,57 @@ class _MissionPageState extends State<MissionPage>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              TextButton(
-                                  onPressed: () async {
-                                    if (_missionNameController.text.isEmpty) {
-                                      Fluttertoast.showToast(msg: "未填写订阅名");
-                                    } else {
-                                      Response response;
-                                      try {
-                                        response = await Dio().get(
-                                            'https://rlin1538.coding.net/api/user/rlin1538/project/cfm_subscribe/shared-depot/cfm_feedback_subscribe/git/blob/main/subscribe');
-                                        //print(response.toString());
-                                        Map<String, dynamic> jsonResp =
-                                            jsonDecode(response.toString());
-                                        // print(jsonResp["data"]["file"]
-                                        //         ["data"]
-                                        //     .toString());
-                                        List<String> subscribe =
-                                            jsonResp["data"]["file"]["data"]
-                                                .toString()
-                                                .split('\n');
-                                        for (int i = 0;
-                                            i < subscribe.length;
-                                            i++) {
-                                          if (_missionNameController.text ==
-                                              subscribe[i]) {
-                                            setState(() {
-                                              subscribeURL = subscribe[i + 1];
-                                              isSubscribed = true;
-                                              subscribeTime = DateTime.now();
-                                            });
-                                            await _saveData();
-                                            await _subscribe();
-                                            Fluttertoast.showToast(
-                                                msg:
-                                                    "订阅：${_missionNameController.text}成功！");
-                                            print(subscribeURL);
-                                            break;
-                                          }
-                                          if (i == subscribe.length - 1) {
-                                            Fluttertoast.showToast(
-                                                msg: "没有该订阅！");
-                                          }
-                                        }
-                                      } catch (e) {
-                                        print(e);
-                                        Fluttertoast.showToast(msg: "订阅异常！");
-                                      }
-
-                                      Navigator.pop(context);
-                                    }
-                                  },
-                                  child: Text("订阅")),
+                              // TextButton(
+                              //     onPressed: () async {
+                              //       if (_missionNameController.text.isEmpty) {
+                              //         Fluttertoast.showToast(msg: "未填写订阅名");
+                              //       } else {
+                              //         Response response;
+                              //         try {
+                              //           response = await Dio().get(
+                              //               'https://rlin1538.coding.net/api/user/rlin1538/project/cfm_subscribe/shared-depot/cfm_feedback_subscribe/git/blob/main/subscribe');
+                              //           //print(response.toString());
+                              //           Map<String, dynamic> jsonResp =
+                              //               jsonDecode(response.toString());
+                              //           // print(jsonResp["data"]["file"]
+                              //           //         ["data"]
+                              //           //     .toString());
+                              //           List<String> subscribe =
+                              //               jsonResp["data"]["file"]["data"]
+                              //                   .toString()
+                              //                   .split('\n');
+                              //           for (int i = 0;
+                              //               i < subscribe.length;
+                              //               i++) {
+                              //             if (_missionNameController.text ==
+                              //                 subscribe[i]) {
+                              //               setState(() {
+                              //                 subscribeURL = subscribe[i + 1];
+                              //                 isSubscribed = true;
+                              //                 subscribeTime = DateTime.now();
+                              //               });
+                              //               await _saveData();
+                              //               await _subscribe();
+                              //               Fluttertoast.showToast(
+                              //                   msg:
+                              //                       "订阅：${_missionNameController.text}成功！");
+                              //               print(subscribeURL);
+                              //               break;
+                              //             }
+                              //             if (i == subscribe.length - 1) {
+                              //               Fluttertoast.showToast(
+                              //                   msg: "没有该订阅！");
+                              //             }
+                              //           }
+                              //         } catch (e) {
+                              //           print(e);
+                              //           Fluttertoast.showToast(msg: "订阅异常！");
+                              //         }
+                              //
+                              //         Navigator.pop(context);
+                              //       }
+                              //     },
+                              //     child: Text("订阅")),
                               TextButton(
                                   onPressed: () {
                                     Navigator.pop(context);
@@ -957,11 +1141,27 @@ class _MissionPageState extends State<MissionPage>
           //widget.missionController.missions = await getwidget.missionController.missions(model.version);
           widget.missionController.loadData(model);
         } catch (e) {
-          Fluttertoast.showToast(msg: "订阅异常");
+          Fluttertoast.showToast(msg: "订阅异常，请联系寒心");
         }
       }
       //widget.missionController.missions = await getwidget.missionController.missions(model.version);
       widget.missionController.loadData(model);
+
+      // 自动标记过期任务为未完成
+      if (Provider.of<CfmerModel>(context, listen: false).autoUnFinished) {
+        print("自动标记过期任务");
+        for (int i = 0; i < widget.missionController.allMission.length; i++) {
+          if (widget.missionController.allMission[i].isFinished == 0 &&
+              DateTime.parse(widget.missionController.allMission[i].deadline)
+                  .isBefore(DateTime.now())) {
+            print("${widget.missionController.allMission[i].name}已过期");
+            widget.missionController.allMission[i].isFinished = 2;
+
+            await updateMission(widget.missionController.allMission[i]);
+          }
+        }
+        widget.missionController.notifyMissionChange();
+      }
     }
   }
 
