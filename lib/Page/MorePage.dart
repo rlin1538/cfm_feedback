@@ -59,18 +59,18 @@ class _MorePageState extends State<MorePage> {
           //     }));
           //   },
           // ),
-          ListTile(
-            leading: Icon(Icons.swap_horizontal_circle),
-            title: Text("键位备份"),
-            subtitle: Text("键位备份、转移到其他账号"),
-            onTap: () {
-              // 申请权限
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                return JoyBackupPage();
-              }));
-            },
-          ),
+          // ListTile(
+          //   leading: Icon(Icons.swap_horizontal_circle),
+          //   title: Text("键位备份"),
+          //   subtitle: Text("键位备份、转移到其他账号"),
+          //   onTap: () {
+          //     // 申请权限
+          //     Navigator.push(context,
+          //         MaterialPageRoute(builder: (BuildContext context) {
+          //       return JoyBackupPage();
+          //     }));
+          //   },
+          // ),
           ListTile(
             leading: Icon(Icons.screen_search_desktop_rounded),
             title: Text("CFM自助工具"),
