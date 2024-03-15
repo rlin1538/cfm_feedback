@@ -104,14 +104,14 @@ class _MorePageState extends State<MorePage> {
             },
           ),
           Divider(),
-          ListTile(
-            leading: Icon(Icons.notifications),
-            title: Text("未完成任务角标"),
-            trailing: Switch(
-              onChanged: (bool value) {},
-              value: false,
-            ),
-          ),
+          // ListTile(
+          //   leading: Icon(Icons.notifications),
+          //   title: Text("未完成任务角标"),
+          //   trailing: Switch(
+          //     onChanged: (bool value) {},
+          //     value: false,
+          //   ),
+          // ),
           ListTile(
             leading: Icon(Icons.flag),
             title: Text("过期任务自动标记未完成"),

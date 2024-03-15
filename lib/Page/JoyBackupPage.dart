@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cfm_feedback/Common/Joy.dart';
 import 'package:cfm_feedback/Page/MyJoysPage.dart';
 import 'package:cfm_feedback/Page/ViewJoy.dart';
+// import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:saf/saf.dart';
@@ -192,10 +193,13 @@ class _JoyBackupPageState extends State<JoyBackupPage> {
   }
 
   _getJoyPath() async {
-    bool? isGranted = await saf.getDirectoryPermission(isDynamic: false);
+    // String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    //
+    // print(selectedDirectory);
+    bool? isGranted = await safAlpha.getDirectoryPermission(isDynamic: false);
     if (isGranted != null && isGranted) {
-      var filePath = await saf.getFilesPath();
-      print(filePath);
+      var filePath = await safAlpha.getFilesPath();
+      print("目录内文件：$filePath");
       if (filePath != null) {
         for (var file in filePath) {
           String title = file.substring(file.lastIndexOf('/') + 1);
